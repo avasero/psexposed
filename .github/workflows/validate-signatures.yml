@@ -17,9 +17,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Setup PowerShell
-      uses: actions/setup-powershell@v1
-    
     - name: Validate Signature Format
       shell: pwsh
       run: |
