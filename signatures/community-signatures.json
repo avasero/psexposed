@@ -1,0 +1,11 @@
+[
+  {
+    "name": "EXAMPLE_COMMUNITY_SIGNATURE",
+    "regex": "community-test-pattern",
+    "flags": "i",
+    "score": 75,
+    "severity": "high",
+    "description": "Example signature for community contributions - REMOVE THIS",
+    "category": "EXAMPLE"
+  }
+]

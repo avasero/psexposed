@@ -1,0 +1,15 @@
+{
+  "name": "powershell-signatures-community",
+  "version": "1.0.0",
+  "description": "Community contributions for PowerShell signatures",
+  "scripts": {
+    "validate": "node scripts/validate.js",
+    "test": "echo 'Tests not implemented yet'",
+    "check-duplicates": "echo 'Duplicate check not implemented yet'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/avasero/psexposed.git"
+  },
+  "license": "MIT"
+}

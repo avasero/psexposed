@@ -1,0 +1,54 @@
+name: 💡 Feature Request
+description: Suggest an improvement or new feature for the project
+title: "[FEATURE] "
+labels: ["enhancement"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! Your ideas help make this project better.
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Feature Description
+      description: A clear and concise description of the feature you'd like to see
+      placeholder: "I would like to see..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem-solution
+    attributes:
+      label: Problem and Solution
+      description: What problem does this feature solve? How would it work?
+      placeholder: |
+        **Problem**: Currently there is no way to...
+        **Solution**: This feature would allow users to...
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: Use Cases
+      description: Describe specific scenarios where this feature would be useful
+      placeholder: |
+        1. When a security analyst wants to...
+        2. During incident response, it would help to...
+        3. For automation purposes...
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered any alternative solutions or workarounds?
+      placeholder: "I've considered... but it doesn't work because..."
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other context, screenshots, or examples that would help
+      placeholder: "Additional information..."

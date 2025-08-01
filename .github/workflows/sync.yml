@@ -1,0 +1,88 @@
+name: Sync to Main Repository
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'signatures/community-signatures.json'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Validate before sync
+      run: npm run validate
+      
+    - name: Sync to main repository
+      env:
+        MAIN_REPO_TOKEN: ${{ secrets.MAIN_REPO_TOKEN }}
+        MAIN_REPO_OWNER: ${{ secrets.MAIN_REPO_OWNER }}
+        MAIN_REPO_NAME: ${{ secrets.MAIN_REPO_NAME }}
+      run: |
+        echo "🚀 Starting sync to main repository..."
+        
+        # Download current signatures
+        curl -s \
+          -H "Authorization: token $MAIN_REPO_TOKEN" \
+          -H "Accept: application/vnd.github.v3.raw" \
+          "https://api.github.com/repos/$MAIN_REPO_OWNER/$MAIN_REPO_NAME/contents/frontend/public/signatures.json" \
+          -o current.json
+          
+        # Merge signatures
+        node -e "
+        const fs = require('fs');
+        const existing = JSON.parse(fs.readFileSync('current.json', 'utf8'));
+        const community = JSON.parse(fs.readFileSync('signatures/community-signatures.json', 'utf8'));
+        
+        const existingNames = new Set(existing.map(s => s.name));
+        const newSigs = community.filter(s => !existingNames.has(s.name));
+        
+        if (newSigs.length === 0) {
+          console.log('ℹ️ No new signatures to sync');
+          process.exit(0);
+        }
+        
+        const merged = [...existing, ...newSigs].sort((a, b) => {
+          if (a.category !== b.category) return a.category.localeCompare(b.category);
+          return a.name.localeCompare(b.name);
+        });
+        
+        fs.writeFileSync('merged.json', JSON.stringify(merged, null, 2));
+        
+        const commitMsg = \`Add \${newSigs.length} community signature(s)\n\nNew signatures:\n\` +
+          newSigs.map(s => \`- \${s.name}\`).join('\n');
+        fs.writeFileSync('commit.txt', commitMsg);
+        
+        console.log(\`✅ Prepared \${newSigs.length} new signatures\`);
+        "
+        
+        # Get current file SHA
+        SHA=$(curl -s \
+          -H "Authorization: token $MAIN_REPO_TOKEN" \
+          "https://api.github.com/repos/$MAIN_REPO_OWNER/$MAIN_REPO_NAME/contents/frontend/public/signatures.json" \
+          | jq -r '.sha')
+          
+        # Update file
+        CONTENT=$(base64 -i merged.json | tr -d '\n')
+        COMMIT_MSG=$(cat commit.txt)
+        
+        curl -X PUT \
+          -H "Authorization: token $MAIN_REPO_TOKEN" \
+          -H "Content-Type: application/json" \
+          "https://api.github.com/repos/$MAIN_REPO_OWNER/$MAIN_REPO_NAME/contents/frontend/public/signatures.json" \
+          -d "{
+            \"message\": \"$COMMIT_MSG\",
+            \"content\": \"$CONTENT\",
+            \"sha\": \"$SHA\"
+          }"
+          
+        echo "✅ Sync completed!"
