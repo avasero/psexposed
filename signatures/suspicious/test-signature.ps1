@@ -3,7 +3,7 @@
 Test signature for validation purposes
 
 .DESCRIPTION
-This is a test signature used for validation testing. It detects suspicious test commands that might be used for testing malicious activities.
+This is a test signature used for validation testing. It detects suspicious test commands that might be used for testing malicious activities. Updated to test webhook integration.
 
 .SEVERITY
 medium
