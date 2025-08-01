@@ -1,63 +1,65 @@
-## 🛡️ Signature Contribution
+## 📋 Descrição
 
-**Type of contribution:** 
-- [ ] New signature
-- [ ] Bug fix
-- [ ] Documentation update
-- [ ] Other: ___________
+Descreva suas mudanças de forma clara e concisa.
 
-### Signature Details
+## 🎯 Tipo de Contribuição
 
-**Signature Name:** `YOUR_SIGNATURE_NAME`
+- [ ] Nova assinatura
+- [ ] Melhoria em assinatura existente
+- [ ] Correção de falso positivo
+- [ ] Documentação
+- [ ] Teste/Validação
 
-**Category:** CATEGORY_NAME
+## 🔍 Assinaturas Adicionadas/Modificadas
 
-**Severity:** severity_level (info/medium/high/critical)
+Lista das assinaturas que foram adicionadas ou modificadas:
 
-**Score:** XX (0-100)
+- `signatures/[categoria]/[nome-arquivo].ps1`
 
-### Description
-Brief description of what this signature detects and why it's important.
+## 📊 Impacto
 
-### Testing Checklist
-- [ ] JSON format is valid
-- [ ] `npm run validate` passes
-- [ ] Regex pattern tested and works correctly
-- [ ] Checked for potential false positives
-- [ ] Verified signature name is unique
-- [ ] Description is clear and accurate
-- [ ] Appropriate category and severity assigned
+**Comandos detectados:**
+<!-- Quantos novos comandos maliciosos serão detectados -->
 
-### Examples
-Provide examples of commands this signature should detect:
+**Falsos positivos:**
+<!-- Estimativa de falsos positivos -->
 
+**Severidade:**
+<!-- critical/high/medium/low -->
+
+## 🧪 Testes Realizados
+
+- [ ] Testei com comandos maliciosos conhecidos
+- [ ] Verifiquei falsos positivos em comandos legítimos
+- [ ] Executei `.\scripts\validate.ps1`
+- [ ] Executei `.\scripts\test-signatures.ps1`
+
+## 💡 Exemplos
+
+### Comandos que serão detectados:
 ```powershell
-# Example malicious command that should trigger this signature
-Example-Command -Parameter "suspicious pattern"
+# Cole aqui exemplos de comandos que serão detectados
 ```
 
-### False Positives
-List any legitimate commands that might trigger this signature and explain why the risk is acceptable:
+### Verificação de falsos positivos:
+```powershell
+# Cole aqui comandos legítimos que NÃO devem ser detectados
+```
 
-- None identified
-- OR
-- Legitimate use case X might trigger, but this is rare because...
+## 📚 Contexto Adicional
 
-### References
-- MITRE ATT&CK Technique: [TXXXX](https://attack.mitre.org/techniques/TXXXX/)
-- Security research: [Link if applicable]
-- CVE: CVE-XXXX-XXXX [if applicable]
+Adicione qualquer contexto adicional sobre as mudanças propostas.
 
-### Additional Context
-Add any other context about this signature, such as:
-- Real-world attack campaigns where this pattern was observed
-- Variations of the technique this signature covers
-- Recommendations for response actions
+## ✅ Checklist
+
+- [ ] Meu código segue as diretrizes do projeto
+- [ ] Executei uma auto-revisão do meu código
+- [ ] Adicionei comentários ao código, especialmente em áreas difíceis de entender
+- [ ] Fiz as mudanças correspondentes na documentação
+- [ ] Minhas mudanças não geram novos warnings
+- [ ] Adicionei testes que provam que minha correção é efetiva ou que minha feature funciona
+- [ ] Testes unitários novos e existentes passam localmente com minhas mudanças
 
 ---
 
-### For Maintainers
-- [ ] Code review completed
-- [ ] Signature effectiveness verified
-- [ ] Documentation is adequate
-- [ ] No conflicts with existing signatures
+**🔒 Ao submeter este PR, você concorda que suas contribuições serão licenciadas sob a MIT License.**

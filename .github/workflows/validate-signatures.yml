@@ -1,0 +1,162 @@
+name: Validate Signatures
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'signatures/**'
+  push:
+    branches: [ main ]
+    paths:
+      - 'signatures/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup PowerShell
+      uses: actions/setup-powershell@v1
+    
+    - name: Validate Signature Format
+      shell: pwsh
+      run: |
+        Write-Host "Validating signature formats..."
+        $errors = @()
+        
+        Get-ChildItem -Path "signatures" -Filter "*.ps1" -Recurse | ForEach-Object {
+          $file = $_
+          $content = Get-Content $file.FullName -Raw
+          
+          Write-Host "Validating $($file.Name)..."
+          
+          # Check required headers
+          $requiredHeaders = @('.SYNOPSIS', '.DESCRIPTION', '.SEVERITY', '.CATEGORY', '.SCORE', '.REGEX')
+          
+          foreach ($header in $requiredHeaders) {
+            if ($content -notmatch $header) {
+              $errors += "File $($file.Name): Missing required header $header"
+            }
+          }
+          
+          # Validate severity values
+          if ($content -match '\.SEVERITY\s*\n\s*(\w+)') {
+            $severity = $matches[1]
+            if ($severity -notin @('critical', 'high', 'medium', 'low')) {
+              $errors += "File $($file.Name): Invalid severity value '$severity'"
+            }
+          }
+          
+          # Validate score range
+          if ($content -match '\.SCORE\s*\n\s*(\d+)') {
+            $score = [int]$matches[1]
+            if ($score -lt 1 -or $score -gt 100) {
+              $errors += "File $($file.Name): Score must be between 1-100, got $score"
+            }
+          }
+          
+          # Test regex pattern
+          if ($content -match '\.REGEX\s*\n\s*(.+)') {
+            $regex = $matches[1].Trim()
+            try {
+              [regex]::new($regex) | Out-Null
+            } catch {
+              $errors += "File $($file.Name): Invalid regex pattern: $($_.Exception.Message)"
+            }
+          }
+        }
+        
+        if ($errors.Count -gt 0) {
+          Write-Host "Validation errors found:" -ForegroundColor Red
+          $errors | ForEach-Object { Write-Host "  - $_" -ForegroundColor Red }
+          exit 1
+        } else {
+          Write-Host "All signatures validated successfully!" -ForegroundColor Green
+        }
+
+    - name: Test Signatures
+      shell: pwsh
+      run: |
+        Write-Host "Testing signature examples..."
+        
+        Get-ChildItem -Path "signatures" -Filter "*.ps1" -Recurse | ForEach-Object {
+          $file = $_
+          $content = Get-Content $file.FullName -Raw
+          
+          # Extract regex pattern
+          if ($content -match '\.REGEX\s*\n\s*(.+)') {
+            $regexPattern = $matches[1].Trim()
+            
+            # Extract flags
+            $flags = "None"
+            if ($content -match '\.FLAGS\s*\n\s*(.+)') {
+              $flags = $matches[1].Trim()
+            }
+            
+            # Extract examples
+            if ($content -match '\.EXAMPLES\s*\n((?:.|\n)*?)#>') {
+              $examples = $matches[1].Trim()
+              $exampleLines = $examples -split '\n' | Where-Object { $_.Trim() -and $_ -notmatch '^\s*#' }
+              
+              foreach ($example in $exampleLines) {
+                $example = $example.Trim()
+                if ($example) {
+                  try {
+                    $regexOptions = [System.Text.RegularExpressions.RegexOptions]::None
+                    if ($flags -match 'i') { $regexOptions = $regexOptions -bor [System.Text.RegularExpressions.RegexOptions]::IgnoreCase }
+                    if ($flags -match 'm') { $regexOptions = $regexOptions -bor [System.Text.RegularExpressions.RegexOptions]::Multiline }
+                    if ($flags -match 's') { $regexOptions = $regexOptions -bor [System.Text.RegularExpressions.RegexOptions]::Singleline }
+                    
+                    $regex = [regex]::new($regexPattern, $regexOptions)
+                    $match = $regex.IsMatch($example)
+                    
+                    if (-not $match) {
+                      Write-Host "Warning: Example in $($file.Name) doesn't match regex: $example" -ForegroundColor Yellow
+                    } else {
+                      Write-Host "✓ Example matches in $($file.Name): $example" -ForegroundColor Green
+                    }
+                  } catch {
+                    Write-Host "Error testing example in $($file.Name): $($_.Exception.Message)" -ForegroundColor Red
+                  }
+                }
+              }
+            }
+          }
+        }
+
+    - name: Send Webhook to Private Repo
+      if: github.event_name == 'pull_request'
+      shell: pwsh
+      run: |
+        $webhookUrl = "https://powershell-exposed.vercel.app/api/webhooks/github"
+        
+        $payload = @{
+          action = "opened"
+          pull_request = @{
+            number = $env:GITHUB_PR_NUMBER
+            title = "$env:GITHUB_PR_TITLE"
+            body = "$env:GITHUB_PR_BODY"
+            html_url = "$env:GITHUB_PR_URL"
+            user = @{
+              login = "$env:GITHUB_ACTOR"
+            }
+          }
+          repository = @{
+            full_name = "$env:GITHUB_REPOSITORY"
+          }
+        } | ConvertTo-Json -Depth 10
+        
+        try {
+          Invoke-RestMethod -Uri $webhookUrl -Method POST -Body $payload -ContentType "application/json"
+          Write-Host "Webhook sent successfully" -ForegroundColor Green
+        } catch {
+          Write-Host "Failed to send webhook: $($_.Exception.Message)" -ForegroundColor Yellow
+        }
+      env:
+        GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+        GITHUB_PR_TITLE: ${{ github.event.pull_request.title }}
+        GITHUB_PR_BODY: ${{ github.event.pull_request.body }}
+        GITHUB_PR_URL: ${{ github.event.pull_request.html_url }}
+        GITHUB_ACTOR: ${{ github.actor }}
