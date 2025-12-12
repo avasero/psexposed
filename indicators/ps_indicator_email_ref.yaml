@@ -1,0 +1,8 @@
+name: Email related reference
+description: tba
+regex: Mail(box|from|to|message|kit)|attachment|\b-(from|to)\s+\S+@\S+\.\S+|send\S*mail
+basescore: 5.7
+tactic: [tba]
+technique: [tba]
+reference:
+  - https://www.avasero.com/

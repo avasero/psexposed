@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentation
+    url: https://github.com/en20/psexposed/wiki
+    about: Check our complete documentation
+  - name: 💬 Discussions
+    url: https://github.com/en20/psexposed/discussions
+    about: General questions and community discussions

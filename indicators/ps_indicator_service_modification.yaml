@@ -1,0 +1,8 @@
+name: Service Modification
+description: tba
+regex: set-service
+basescore: 6.2
+tactic: [tba]
+technique: [tba]
+reference:
+  - https://www.avasero.com/

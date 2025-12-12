@@ -1,0 +1,8 @@
+name: AD Local Admin Enumeration
+description: tba
+regex: EnumerateLocalAdmin
+basescore: 8.5
+tactic: [tba]
+technique: [tba]
+reference:
+  - https://www.avasero.com/

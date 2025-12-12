@@ -1,0 +1,10 @@
+name: Fairly suspicious keywords
+description: This indicator is designed to capture as many low-severity strings as possible through multi-matching (see the maxmatch field below), avoiding the need to create numerous low-value indicators. As a result, the regex will be long. If a particular string/pattern needs to be highlighted separately, it can be offloaded into its own indicator and removed from this one. The maxmatch field defines how many distinct matches are treated as separate instances of the indicator. It was initially inspired and later expanded from a few Sigma detections (refer to references).
+regex: shell\.application|password|dump|Obfuscation|sploit|scanner|rundll|Reflection|icm\s+|base64|discover-|IsInRole|Get-WinSystemLocale|Set-Wallpaper|etsn\s+.+ComputerName|(start|get)-Service.+ComputerName|gsv\s+.+ComputerName|get-Credential|(ps|Get-Process)\s+.+ComputerName|PasswordSettings|localadmin|downloaddata|get-\S+(credent|password)|\[byte\]|System\.Convert|InteropServices|Get-LocalUser|\b-useb\s|binPath|GetTempFileName|SecurityProtocol|get-netfirewall|winsystemlocale|RemoteConnection|AntiVirusProduct|ldap://|ActiveDirectory\.Domain|\b(tnc|Test-NetConnection)\s+\S+\.\S+\s+[-]port\s+\d+|\bcmd(\.exe)*\s+/c\b|Stop-Process\s.*-force|taskkill.+/f|[^\-]encoded
+maxmatch: 3
+basescore: 4.0
+tactic: Execution
+technique: T1059.001
+reference:
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/powershell/powershell_script/posh_ps_susp_keywords.yml
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/powershell/powershell_script/posh_ps_malicious_keywords.yml
