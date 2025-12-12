@@ -54,37 +54,34 @@ jobs:
 
       - name: Send YAMLs to Supabase
         run: |
-          # Pega a lista de arquivos do output anterior
+          # Recupera a lista de arquivos
           FILES=$(echo '${{ steps.changes.outputs.json }}' | jq -r '.files[]')
 
           for file in $FILES; do
-            echo "Processando arquivo: $file"
-
-            # USA JQ PARA CRIAR O PAYLOAD SEGURO (Lida com newlines e aspas)
-            # --arg fp: passa o caminho do arquivo como string
-            # --rawfile content: lê o conteúdo do arquivo inteiro como string
+            echo "Processando: $file"
+            
+            # --- CORREÇÃO CRÍTICA AQUI ---
+            # Usa jq --rawfile para ler o arquivo YAML inteiro de forma segura
+            # Isso evita erros de aspas, quebras de linha e caracteres especiais
             jq -n \
               --arg fp "$file" \
               --rawfile content "$file" \
               '{file_path: $fp, content: $content}' > payload.json
 
-            echo "Enviando para Supabase..."
-
-            # Envia o arquivo payload.json criado (-d @payload.json)
+            # Envia usando o arquivo payload.json gerado
             HTTP_CODE=$(curl -s -o response.txt -w "%{http_code}" -X POST \
               -H "Content-Type: application/json" \
               -H "Authorization: Bearer $SUPABASE_EDGE_SECRET" \
               -d @payload.json \
               "$SUPABASE_EDGE_URL")
 
-            echo "Status Code: $HTTP_CODE"
+            echo "HTTP Code: $HTTP_CODE"
             cat response.txt
             echo ""
             echo "-------------------------------"
-            
-            # Falha o job se não for 200
+
             if [ "$HTTP_CODE" -ne 200 ]; then
-              echo "Erro ao enviar $file"
+              echo "::error::Falha ao enviar $file"
               exit 1
             fi
           done
