@@ -1,8 +1,0 @@
-name: WMI usage
-description: tba
-regex: WmiCommand|PowerShellWMI|wmiobject|WMIMethod|RemoteWMI|PowerShellWmi|(iwmi|gwmi)\s+
-basescore: 5
-tactic: [tba]
-technique: [tba]
-reference:
-  - https://www.avasero.com/

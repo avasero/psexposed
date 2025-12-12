@@ -1,8 +1,0 @@
-name: Notable Charset
-description: tba
-regex: [\p{Cyrillic}\p{Hangul}\p{Han}]
-basescore: 5.4
-tactic: [tba]
-technique: [tba]
-reference:
-  - https://www.avasero.com/

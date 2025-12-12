@@ -1,8 +1,0 @@
-name: Common AD Enumeration cmdlets
-description: tba
-regex: get-(aduser|adgroup|adcomputer|ADObject)
-basescore: 4.5
-tactic: [tba]
-technique: [tba]
-reference:
-  - https://www.avasero.com/

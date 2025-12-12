@@ -1,8 +1,0 @@
-name: Clipboard Manipulation
-description: tba
-regex: \.Clipboard|ClipboardContent|get-clipboard
-basescore: 9
-tactic: [tba]
-technique: [tba]
-reference:
-  - https://www.avasero.com/
