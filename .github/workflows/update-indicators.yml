@@ -1,0 +1,39 @@
+name: Update Public Indicators
+
+on:
+  push:
+    paths:
+      - "indicators/**/*.yaml"
+      - "indicators/**/*.yml"
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Process changed YAML files
+        run: |
+          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD | grep "indicators/.*\.ya" || true)
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No YAML files changed."
+            exit 0
+          fi
+
+          for file in $CHANGED_FILES; do
+            echo "Sending $file..."
+
+            CONTENT=$(cat $file | sed 's/"/\\"/g')
+
+            curl -X POST \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer $SUPABASE_EDGE_SECRET" \
+              -d "{\"file_path\": \"$file\", \"content\": \"$CONTENT\"}" \
+              $SUPABASE_EDGE_URL
+          done
+        env:
+          SUPABASE_EDGE_URL: ${{ secrets.SUPABASE_EDGE_URL }}
+          SUPABASE_EDGE_SECRET: ${{ secrets.SUPABASE_EDGE_SECRET }}
