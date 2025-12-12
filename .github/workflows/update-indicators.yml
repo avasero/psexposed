@@ -33,27 +33,27 @@ jobs:
       - name: Check for indicator changes
         id: check-changes
         run: |
-          echo "🔍 Detectando mudanças nos indicadores..."
+          echo "Detecting indicator changes..."
           
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            # Para PRs, comparar com a branch base
+            # For PRs, compare with base branch
             BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
-            echo "Comparando com branch base: $BASE_BRANCH"
+            echo "Comparing with base branch: $BASE_BRANCH"
             
             ADDED_FILES=$(git diff --name-status origin/$BASE_BRANCH...HEAD | grep '^A' | awk '{print $2}' | grep '^indicators/.*\.ya\?ml$' || true)
             MODIFIED_FILES=$(git diff --name-status origin/$BASE_BRANCH...HEAD | grep '^M' | awk '{print $2}' | grep '^indicators/.*\.ya\?ml$' || true)
             DELETED_FILES=$(git diff --name-status origin/$BASE_BRANCH...HEAD | grep '^D' | awk '{print $2}' | grep '^indicators/.*\.ya\?ml$' || true)
           else
-            # Para pushes diretos, verificar mudanças no último commit
-            echo "Verificando último commit..."
+            # For direct pushes, check changes in the last commit
+            echo "Checking last commit..."
             
-            # Fallback para primeiro commit
+            # Fallback for first commit
             if git rev-parse HEAD~1 >/dev/null 2>&1; then
               ADDED_FILES=$(git diff --name-status HEAD~1 HEAD | grep '^A' | awk '{print $2}' | grep '^indicators/.*\.ya\?ml$' || true)
               MODIFIED_FILES=$(git diff --name-status HEAD~1 HEAD | grep '^M' | awk '{print $2}' | grep '^indicators/.*\.ya\?ml$' || true)
               DELETED_FILES=$(git diff --name-status HEAD~1 HEAD | grep '^D' | awk '{print $2}' | grep '^indicators/.*\.ya\?ml$' || true)
             else
-              echo "Primeiro commit - listando todos os arquivos como adicionados"
+              echo "First commit - listing all files as added"
               ADDED_FILES=$(find indicators -name "*.yaml" -o -name "*.yml" 2>/dev/null || true)
               MODIFIED_FILES=""
               DELETED_FILES=""
@@ -61,18 +61,18 @@ jobs:
           fi
           
           # Debug output
-          echo "📁 Arquivos adicionados:"
+          echo "Added files:"
           echo "$ADDED_FILES"
-          echo "📝 Arquivos modificados:"
+          echo "Modified files:"
           echo "$MODIFIED_FILES"
-          echo "🗑️ Arquivos deletados:"
+          echo "Deleted files:"
           echo "$DELETED_FILES"
           
           # Check if there are any changes
           if [ -n "$ADDED_FILES" ] || [ -n "$MODIFIED_FILES" ] || [ -n "$DELETED_FILES" ]; then
             echo "has_changes=true" >> $GITHUB_OUTPUT
             
-            # Converter quebras de linha em JSON arrays (compacto, uma linha)
+            # Convert line breaks to JSON arrays (compact, single line)
             ADDED_JSON=$(echo "$ADDED_FILES" | grep -v '^$' | jq -R . | jq -sc . || echo "[]")
             MODIFIED_JSON=$(echo "$MODIFIED_FILES" | grep -v '^$' | jq -R . | jq -sc . || echo "[]")
             DELETED_JSON=$(echo "$DELETED_FILES" | grep -v '^$' | jq -R . | jq -sc . || echo "[]")
@@ -81,13 +81,13 @@ jobs:
             echo "modified_files=$MODIFIED_JSON" >> $GITHUB_OUTPUT
             echo "deleted_files=$DELETED_JSON" >> $GITHUB_OUTPUT
             
-            echo "✅ Mudanças detectadas!"
+            echo "Changes detected!"
           else
             echo "has_changes=false" >> $GITHUB_OUTPUT
             echo "added_files=[]" >> $GITHUB_OUTPUT
             echo "modified_files=[]" >> $GITHUB_OUTPUT
             echo "deleted_files=[]" >> $GITHUB_OUTPUT
-            echo "ℹ️ Nenhuma mudança em indicadores detectada"
+            echo "No indicator changes detected"
           fi
 
   update-database:
@@ -108,29 +108,29 @@ jobs:
           DELETED_FILES: ${{ needs.detect-changes.outputs.deleted-files }}
           GITHUB_ACTOR: ${{ github.actor }}
         run: |
-          echo "🚀 Iniciando atualização do banco de dados..."
-          echo "👤 Autor: $GITHUB_ACTOR"
+          echo "Starting database update..."
+          echo "Author: $GITHUB_ACTOR"
           
-          # Processar arquivos adicionados e modificados
+          # Process added and modified files
           UPSERT_FILES=$(echo "$ADDED_FILES $MODIFIED_FILES" | jq -s 'add | unique')
-          echo "📤 Arquivos para upsert: $UPSERT_FILES"
+          echo "Files to upsert: $UPSERT_FILES"
           
-          # Processar arquivos deletados
-          echo "🗑️ Arquivos para deletar: $DELETED_FILES"
+          # Process deleted files
+          echo "Files to delete: $DELETED_FILES"
           
-          # Preparar payload com todos os dados
+          # Prepare payload with all data
           INDICATORS_DATA="[]"
           
-          # Processar cada arquivo para upsert
+          # Process each file for upsert
           for file in $(echo "$UPSERT_FILES" | jq -r '.[]'); do
             if [ -f "$file" ]; then
-              echo "📄 Processando: $file"
+              echo "Processing: $file"
               
-              # Gerar link e avatar
+              # Generate link and avatar
               LINK="https://github.com/${{ github.repository }}/blob/main/$file"
               GITHUB_AVATAR="https://github.com/${GITHUB_ACTOR}.png"
               
-              # Usar jq --rawfile para ler o YAML de forma segura
+              # Use jq --rawfile to read the YAML file safely
               INDICATOR_JSON=$(jq -n \
                 --arg file_path "$file" \
                 --arg link "$LINK" \
@@ -148,14 +148,14 @@ jobs:
               
               INDICATORS_DATA=$(echo "$INDICATORS_DATA" | jq ". += [$INDICATOR_JSON]")
             else
-              echo "⚠️ Arquivo não encontrado: $file"
+              echo "Warning: File not found: $file"
             fi
           done
           
-          # Adicionar arquivos deletados ao payload
+          # Add deleted files to payload
           for file in $(echo "$DELETED_FILES" | jq -r '.[]'); do
             if [ -n "$file" ]; then
-              echo "🗑️ Marcando para deleção: $file"
+              echo "Marking for deletion: $file"
               
               DELETE_JSON=$(jq -n \
                 --arg file_path "$file" \
@@ -168,16 +168,16 @@ jobs:
             fi
           done
           
-          # Verificar se há dados para enviar
+          # Check if there is data to send
           TOTAL_ITEMS=$(echo "$INDICATORS_DATA" | jq 'length')
           if [ "$TOTAL_ITEMS" -eq 0 ]; then
-            echo "ℹ️ Nenhum indicador para processar"
+            echo "No indicators to process"
             exit 0
           fi
           
-          echo "📊 Total de indicadores a processar: $TOTAL_ITEMS"
+          echo "Total indicators to process: $TOTAL_ITEMS"
           
-          # Criar payload final
+          # Create final payload
           PAYLOAD=$(jq -n \
             --argjson indicators "$INDICATORS_DATA" \
             --arg github_actor "$GITHUB_ACTOR" \
@@ -186,35 +186,35 @@ jobs:
               github_actor: $github_actor
             }')
           
-          echo "📤 Enviando payload para Edge Function..."
+          echo "Sending payload to Edge Function..."
           
-          # Enviar para Edge Function
+          # Send to Edge Function
           HTTP_CODE=$(curl -s -o response.txt -w "%{http_code}" -X POST \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $SUPABASE_EDGE_SECRET" \
             -d "$PAYLOAD" \
             "$SUPABASE_EDGE_URL")
           
-          echo "📡 HTTP Code: $HTTP_CODE"
-          echo "📋 Response:"
+          echo "HTTP Code: $HTTP_CODE"
+          echo "Response:"
           cat response.txt
           echo ""
           
-          # Verificar resposta
+          # Check response
           if [ "$HTTP_CODE" -eq 200 ]; then
             SUCCESS=$(cat response.txt | jq -r '.success // false')
             if [ "$SUCCESS" = "true" ]; then
-              echo "✅ Banco de dados atualizado com sucesso!"
+              echo "Database updated successfully!"
               PROCESSED=$(cat response.txt | jq -r '.indicators_processed // 0')
               DELETED=$(cat response.txt | jq -r '.indicators_deleted // 0')
-              echo "📊 Processados: $PROCESSED | Deletados: $DELETED"
+              echo "Processed: $PROCESSED | Deleted: $DELETED"
             else
-              echo "❌ Falha ao atualizar banco de dados"
-              cat response.txt | jq -r '.error // "Erro desconhecido"'
+              echo "Failed to update database"
+              cat response.txt | jq -r '.error // "Unknown error"'
               exit 1
             fi
           else
-            echo "❌ Erro HTTP: $HTTP_CODE"
+            echo "HTTP Error: $HTTP_CODE"
             cat response.txt
             exit 1
           fi
@@ -228,27 +228,27 @@ jobs:
             const modifiedFiles = JSON.parse('${{ needs.detect-changes.outputs.modified-files }}' || '[]');
             const deletedFiles = JSON.parse('${{ needs.detect-changes.outputs.deleted-files }}' || '[]');
             
-            let body = `## ✅ Public Indicators Database Atualizado!\n\n`;
+            let body = `## Public Indicators Database Updated\n\n`;
             
             if (addedFiles.length > 0) {
-              body += `### ➕ Indicadores Adicionados (${addedFiles.length})\n`;
+              body += `### Added Indicators (${addedFiles.length})\n`;
               addedFiles.forEach(f => body += `- \`${f}\`\n`);
               body += '\n';
             }
             
             if (modifiedFiles.length > 0) {
-              body += `### ✏️ Indicadores Modificados (${modifiedFiles.length})\n`;
+              body += `### Modified Indicators (${modifiedFiles.length})\n`;
               modifiedFiles.forEach(f => body += `- \`${f}\`\n`);
               body += '\n';
             }
             
             if (deletedFiles.length > 0) {
-              body += `### 🗑️ Indicadores Removidos (${deletedFiles.length})\n`;
+              body += `### Removed Indicators (${deletedFiles.length})\n`;
               deletedFiles.forEach(f => body += `- \`${f}\`\n`);
               body += '\n';
             }
             
-            body += `\n---\n*Atualizado automaticamente pelo GitHub Actions*`;
+            body += `\n---\n*Automatically updated by GitHub Actions*`;
             
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
