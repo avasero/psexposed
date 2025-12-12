@@ -1,6 +1,6 @@
 name: DLL file reference observed in payload
 description: tba
-regex: '[^\.]+\.dll'
+regex: [^\.]+\.dll
 basescore: 4.3
 tactic: [tba]
 technique: [tba]
