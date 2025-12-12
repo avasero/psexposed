@@ -11,42 +11,47 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v3
 
       - name: Detect changed YAML files
-        id: changed
+        id: changes
         run: |
-          # Tenta obter arquivos alterados (para commits normais)
-          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD -- "indicators/**/*.ya*" || true)
+          # Tentativa normal
+          CHANGED=$(git diff --name-only HEAD~1 HEAD -- "indicators/**/*.ya*" || true)
 
-          # Se vazio (primeiro commit ou rebase), usar fallback
-          if [ -z "$CHANGED_FILES" ]; then
-            echo "Fallback: listing all YAMLs in indicators/"
-            CHANGED_FILES=$(ls indicators/*.ya* 2>/dev/null || true)
+          # Fallback — primeiro commit
+          if [ -z "$CHANGED" ]; then
+            echo "Fallback: listando todos YAMLs"
+            CHANGED=$(ls indicators/*.ya* 2>/dev/null || true)
           fi
 
-          echo "Changed files:"
-          echo "$CHANGED_FILES"
+          echo "Arquivos encontrados:"
+          echo "$CHANGED"
 
-          # Exporta para GitHub Actions
-          echo "files<<EOF" >> $GITHUB_OUTPUT
-          echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          # Exporta como JSON
+          jq -n --arg files "$CHANGED" '
+            {
+              files: ($files | split("\n") | map(select(length > 0)))
+            }
+          ' > changed.json
 
-      - name: Stop if no YAML files found
-        if: steps.changed.outputs.files == ''
+          echo "json=$(cat changed.json)" >> $GITHUB_OUTPUT
+
+      - name: Stop if no YAMLs
+        if: ${{ fromJson(steps.changes.outputs.json).files == '' }}
         run: |
-          echo "No YAML files changed or available. Exiting."
+          echo "No YAML files found."
           exit 0
 
-      - name: Send YAMLs to Supabase Edge Function
+      - name: Send YAMLs to Supabase
         run: |
-          for file in ${{ steps.changed.outputs.files }}; do
-            echo "Processing: $file"
+          FILES=$(echo '${{ steps.changes.outputs.json }}' | jq -r '.files[]')
 
-            # Escapar aspas para enviar via JSON
-            CONTENT=$(cat $file | sed 's/"/\\"/g')
+          for file in $FILES; do
+            echo "Processando: $file"
+
+            CONTENT=$(cat "$file" | sed 's/"/\\"/g')
 
             curl -X POST \
               -H "Content-Type: application/json" \
