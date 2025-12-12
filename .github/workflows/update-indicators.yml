@@ -72,10 +72,10 @@ jobs:
           if [ -n "$ADDED_FILES" ] || [ -n "$MODIFIED_FILES" ] || [ -n "$DELETED_FILES" ]; then
             echo "has_changes=true" >> $GITHUB_OUTPUT
             
-            # Converter quebras de linha em JSON arrays
-            ADDED_JSON=$(echo "$ADDED_FILES" | grep -v '^$' | jq -R . | jq -s . || echo "[]")
-            MODIFIED_JSON=$(echo "$MODIFIED_FILES" | grep -v '^$' | jq -R . | jq -s . || echo "[]")
-            DELETED_JSON=$(echo "$DELETED_FILES" | grep -v '^$' | jq -R . | jq -s . || echo "[]")
+            # Converter quebras de linha em JSON arrays (compacto, uma linha)
+            ADDED_JSON=$(echo "$ADDED_FILES" | grep -v '^$' | jq -R . | jq -sc . || echo "[]")
+            MODIFIED_JSON=$(echo "$MODIFIED_FILES" | grep -v '^$' | jq -R . | jq -sc . || echo "[]")
+            DELETED_JSON=$(echo "$DELETED_FILES" | grep -v '^$' | jq -R . | jq -sc . || echo "[]")
             
             echo "added_files=$ADDED_JSON" >> $GITHUB_OUTPUT
             echo "modified_files=$MODIFIED_JSON" >> $GITHUB_OUTPUT
