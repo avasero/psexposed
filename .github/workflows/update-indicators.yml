@@ -17,10 +17,10 @@ jobs:
       - name: Detect changed YAML files
         id: changes
         run: |
-          # Tentativa normal
+          # Tentativa normal — funciona quando há commit anterior
           CHANGED=$(git diff --name-only HEAD~1 HEAD -- "indicators/**/*.ya*" || true)
 
-          # Fallback — primeiro commit
+          # Fallback — primeiro commit ou ausência de diff
           if [ -z "$CHANGED" ]; then
             echo "Fallback: listando todos YAMLs"
             CHANGED=$(ls indicators/*.ya* 2>/dev/null || true)
@@ -29,19 +29,27 @@ jobs:
           echo "Arquivos encontrados:"
           echo "$CHANGED"
 
-          # Exporta como JSON
+          # Gera JSON estruturado
           jq -n --arg files "$CHANGED" '
             {
               files: ($files | split("\n") | map(select(length > 0)))
             }
           ' > changed.json
 
-          echo "json=$(cat changed.json)" >> $GITHUB_OUTPUT
+          echo "JSON gerado:"
+          cat changed.json
+
+          # Exporta JSON corretamente (multilinha)
+          {
+            echo "json<<EOF"
+            cat changed.json
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Stop if no YAMLs
         if: ${{ fromJson(steps.changes.outputs.json).files == '' }}
         run: |
-          echo "No YAML files found."
+          echo "Nenhum YAML encontrado. Encerrando."
           exit 0
 
       - name: Send YAMLs to Supabase
@@ -49,15 +57,20 @@ jobs:
           FILES=$(echo '${{ steps.changes.outputs.json }}' | jq -r '.files[]')
 
           for file in $FILES; do
-            echo "Processando: $file"
+            echo "Processando arquivo: $file"
 
+            # Escapa aspas do conteúdo
             CONTENT=$(cat "$file" | sed 's/"/\\"/g')
+
+            echo "Enviando para Supabase..."
 
             curl -X POST \
               -H "Content-Type: application/json" \
               -H "Authorization: Bearer $SUPABASE_EDGE_SECRET" \
               -d "{\"file_path\": \"$file\", \"content\": \"$CONTENT\"}" \
               "$SUPABASE_EDGE_URL"
+
+            echo "-------------------------------"
           done
         env:
           SUPABASE_EDGE_URL: ${{ secrets.SUPABASE_EDGE_URL }}
