@@ -1,6 +1,6 @@
 name: Potential tampering with MS Defender
 description: Spots potential attempts to tamper with MS Defender. Be aware of legit/FP cases (ex.: Get- instead of Set-MpPreference calls).
-regex: Set-MpPreference.+Disable(RealtimeMonitoring|BehaviorMonitoring|IOAVProtection|ScriptScanning|IntrusionPreventionSystem|AntiSpyware)|Set-MpPreference.+(EnableControlledFolderAccess\s+disabled|MAPSReporting\s+0|SubmitSamplesConsent\s+2)|MpCmdRun.+-RemoveDefinitions
+regex: "Set-MpPreference.+Disable(RealtimeMonitoring|BehaviorMonitoring|IOAVProtection|ScriptScanning|IntrusionPreventionSystem|AntiSpyware)|Set-MpPreference.+(EnableControlledFolderAccess\\s+disabled|MAPSReporting\\s+0|SubmitSamplesConsent\\s+2)|MpCmdRun.+-RemoveDefinitions"
 basescore: 9.7
 tactic: Defense Evasion
 technique: [T1562.001, T1059.001]
