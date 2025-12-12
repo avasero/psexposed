@@ -1,0 +1,8 @@
+name: Potential Script reference
+description: tba
+regex: wscript|cscript|javascript|\S+\.(vbs|js)
+basescore: 6
+tactic: [tba]
+technique: [tba]
+reference:
+  - https://www.avasero.com/

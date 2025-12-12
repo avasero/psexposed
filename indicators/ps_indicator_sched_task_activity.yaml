@@ -1,0 +1,8 @@
+name: Scheduled Task Activity
+description: tba
+regex: get-ScheduledTask|schtasks|Schedule\.Service|Win32_ScheduledJob|PS_ScheduledTask|Schedule.+TaskCache
+basescore: 3.8
+tactic: [tba]
+technique: [tba]
+reference:
+  - https://www.avasero.com/
