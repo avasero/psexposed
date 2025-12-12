@@ -1,90 +1,278 @@
-name: Update Public Indicators
+name: Update Public Indicators Database
 
 on:
-  push:
+  pull_request:
+    types: [opened, synchronize, reopened]
     paths:
-      - "indicators/**/*.yaml"
-      - "indicators/**/*.yml"
+      - 'indicators/**/*.yaml'
+      - 'indicators/**/*.yml'
+      - '.github/workflows/update-indicators.yml'
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'indicators/**/*.yaml'
+      - 'indicators/**/*.yml'
 
 jobs:
-  update:
+  detect-changes:
     runs-on: ubuntu-latest
-
+    outputs:
+      has-changes: ${{ steps.check-changes.outputs.has_changes }}
+      added-files: ${{ steps.check-changes.outputs.added_files }}
+      modified-files: ${{ steps.check-changes.outputs.modified_files }}
+      deleted-files: ${{ steps.check-changes.outputs.deleted_files }}
+    
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Detect changed YAML files
-        id: changes
+      - name: Check for indicator changes
+        id: check-changes
         run: |
-          # Tentativa normal — funciona quando há commit anterior
-          CHANGED=$(git diff --name-only HEAD~1 HEAD -- "indicators/**/*.ya*" || true)
-
-          # Fallback — primeiro commit ou ausência de diff
-          if [ -z "$CHANGED" ]; then
-            echo "Fallback: listando todos YAMLs"
-            CHANGED=$(ls indicators/*.ya* 2>/dev/null || true)
+          echo "🔍 Detectando mudanças nos indicadores..."
+          
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            # Para PRs, comparar com a branch base
+            BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+            echo "Comparando com branch base: $BASE_BRANCH"
+            
+            ADDED_FILES=$(git diff --name-status origin/$BASE_BRANCH...HEAD | grep '^A' | awk '{print $2}' | grep '^indicators/.*\.ya\?ml$' || true)
+            MODIFIED_FILES=$(git diff --name-status origin/$BASE_BRANCH...HEAD | grep '^M' | awk '{print $2}' | grep '^indicators/.*\.ya\?ml$' || true)
+            DELETED_FILES=$(git diff --name-status origin/$BASE_BRANCH...HEAD | grep '^D' | awk '{print $2}' | grep '^indicators/.*\.ya\?ml$' || true)
+          else
+            # Para pushes diretos, verificar mudanças no último commit
+            echo "Verificando último commit..."
+            
+            # Fallback para primeiro commit
+            if git rev-parse HEAD~1 >/dev/null 2>&1; then
+              ADDED_FILES=$(git diff --name-status HEAD~1 HEAD | grep '^A' | awk '{print $2}' | grep '^indicators/.*\.ya\?ml$' || true)
+              MODIFIED_FILES=$(git diff --name-status HEAD~1 HEAD | grep '^M' | awk '{print $2}' | grep '^indicators/.*\.ya\?ml$' || true)
+              DELETED_FILES=$(git diff --name-status HEAD~1 HEAD | grep '^D' | awk '{print $2}' | grep '^indicators/.*\.ya\?ml$' || true)
+            else
+              echo "Primeiro commit - listando todos os arquivos como adicionados"
+              ADDED_FILES=$(find indicators -name "*.yaml" -o -name "*.yml" 2>/dev/null || true)
+              MODIFIED_FILES=""
+              DELETED_FILES=""
+            fi
+          fi
+          
+          # Debug output
+          echo "📁 Arquivos adicionados:"
+          echo "$ADDED_FILES"
+          echo "📝 Arquivos modificados:"
+          echo "$MODIFIED_FILES"
+          echo "🗑️ Arquivos deletados:"
+          echo "$DELETED_FILES"
+          
+          # Check if there are any changes
+          if [ -n "$ADDED_FILES" ] || [ -n "$MODIFIED_FILES" ] || [ -n "$DELETED_FILES" ]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            
+            # Converter quebras de linha em JSON arrays
+            ADDED_JSON=$(echo "$ADDED_FILES" | grep -v '^$' | jq -R . | jq -s . || echo "[]")
+            MODIFIED_JSON=$(echo "$MODIFIED_FILES" | grep -v '^$' | jq -R . | jq -s . || echo "[]")
+            DELETED_JSON=$(echo "$DELETED_FILES" | grep -v '^$' | jq -R . | jq -s . || echo "[]")
+            
+            echo "added_files=$ADDED_JSON" >> $GITHUB_OUTPUT
+            echo "modified_files=$MODIFIED_JSON" >> $GITHUB_OUTPUT
+            echo "deleted_files=$DELETED_JSON" >> $GITHUB_OUTPUT
+            
+            echo "✅ Mudanças detectadas!"
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "added_files=[]" >> $GITHUB_OUTPUT
+            echo "modified_files=[]" >> $GITHUB_OUTPUT
+            echo "deleted_files=[]" >> $GITHUB_OUTPUT
+            echo "ℹ️ Nenhuma mudança em indicadores detectada"
           fi
 
-          echo "Arquivos encontrados:"
-          echo "$CHANGED"
+  update-database:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has-changes == 'true'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-          # Gera JSON estruturado
-          jq -n --arg files "$CHANGED" '
-            {
-              files: ($files | split("\n") | map(select(length > 0)))
-            }
-          ' > changed.json
-
-          echo "JSON gerado:"
-          cat changed.json
-
-          # Exporta JSON corretamente (multilinha)
-          {
-            echo "json<<EOF"
-            cat changed.json
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Stop if no YAMLs
-        if: ${{ fromJson(steps.changes.outputs.json).files == '' }}
-        run: |
-          echo "Nenhum YAML encontrado. Encerrando."
-          exit 0
-
-      - name: Send YAMLs to Supabase
-        run: |
-          # Recupera a lista de arquivos
-          FILES=$(echo '${{ steps.changes.outputs.json }}' | jq -r '.files[]')
-
-          for file in $FILES; do
-            echo "Processando: $file"
-            
-            # --- CORREÇÃO CRÍTICA AQUI ---
-            # Usa jq --rawfile para ler o arquivo YAML inteiro de forma segura
-            # Isso evita erros de aspas, quebras de linha e caracteres especiais
-            jq -n \
-              --arg fp "$file" \
-              --rawfile content "$file" \
-              '{file_path: $fp, content: $content}' > payload.json
-
-            # Envia usando o arquivo payload.json gerado
-            HTTP_CODE=$(curl -s -o response.txt -w "%{http_code}" -X POST \
-              -H "Content-Type: application/json" \
-              -H "Authorization: Bearer $SUPABASE_EDGE_SECRET" \
-              -d @payload.json \
-              "$SUPABASE_EDGE_URL")
-
-            echo "HTTP Code: $HTTP_CODE"
-            cat response.txt
-            echo ""
-            echo "-------------------------------"
-
-            if [ "$HTTP_CODE" -ne 200 ]; then
-              echo "::error::Falha ao enviar $file"
-              exit 1
-            fi
-          done
+      - name: Process and Send Indicators to Supabase
         env:
           SUPABASE_EDGE_URL: ${{ secrets.SUPABASE_EDGE_URL }}
           SUPABASE_EDGE_SECRET: ${{ secrets.SUPABASE_EDGE_SECRET }}
+          ADDED_FILES: ${{ needs.detect-changes.outputs.added-files }}
+          MODIFIED_FILES: ${{ needs.detect-changes.outputs.modified-files }}
+          DELETED_FILES: ${{ needs.detect-changes.outputs.deleted-files }}
+          GITHUB_ACTOR: ${{ github.actor }}
+        run: |
+          echo "🚀 Iniciando atualização do banco de dados..."
+          echo "👤 Autor: $GITHUB_ACTOR"
+          
+          # Processar arquivos adicionados e modificados
+          UPSERT_FILES=$(echo "$ADDED_FILES $MODIFIED_FILES" | jq -s 'add | unique')
+          echo "📤 Arquivos para upsert: $UPSERT_FILES"
+          
+          # Processar arquivos deletados
+          echo "🗑️ Arquivos para deletar: $DELETED_FILES"
+          
+          # Preparar payload com todos os dados
+          INDICATORS_DATA="[]"
+          
+          # Processar cada arquivo para upsert
+          for file in $(echo "$UPSERT_FILES" | jq -r '.[]'); do
+            if [ -f "$file" ]; then
+              echo "📄 Processando: $file"
+              
+              # Gerar link e avatar
+              LINK="https://github.com/${{ github.repository }}/blob/main/$file"
+              GITHUB_AVATAR="https://github.com/${GITHUB_ACTOR}.png"
+              
+              # Usar jq --rawfile para ler o YAML de forma segura
+              INDICATOR_JSON=$(jq -n \
+                --arg file_path "$file" \
+                --arg link "$LINK" \
+                --arg last_modified_by "$GITHUB_ACTOR" \
+                --arg last_modified_by_avatar "$GITHUB_AVATAR" \
+                --rawfile content "$file" \
+                '{
+                  file_path: $file_path,
+                  content: $content,
+                  link: $link,
+                  last_modified_by: $last_modified_by,
+                  last_modified_by_avatar: $last_modified_by_avatar,
+                  action: "upsert"
+                }')
+              
+              INDICATORS_DATA=$(echo "$INDICATORS_DATA" | jq ". += [$INDICATOR_JSON]")
+            else
+              echo "⚠️ Arquivo não encontrado: $file"
+            fi
+          done
+          
+          # Adicionar arquivos deletados ao payload
+          for file in $(echo "$DELETED_FILES" | jq -r '.[]'); do
+            if [ -n "$file" ]; then
+              echo "🗑️ Marcando para deleção: $file"
+              
+              DELETE_JSON=$(jq -n \
+                --arg file_path "$file" \
+                '{
+                  file_path: $file_path,
+                  action: "delete"
+                }')
+              
+              INDICATORS_DATA=$(echo "$INDICATORS_DATA" | jq ". += [$DELETE_JSON]")
+            fi
+          done
+          
+          # Verificar se há dados para enviar
+          TOTAL_ITEMS=$(echo "$INDICATORS_DATA" | jq 'length')
+          if [ "$TOTAL_ITEMS" -eq 0 ]; then
+            echo "ℹ️ Nenhum indicador para processar"
+            exit 0
+          fi
+          
+          echo "📊 Total de indicadores a processar: $TOTAL_ITEMS"
+          
+          # Criar payload final
+          PAYLOAD=$(jq -n \
+            --argjson indicators "$INDICATORS_DATA" \
+            --arg github_actor "$GITHUB_ACTOR" \
+            '{
+              indicators: $indicators,
+              github_actor: $github_actor
+            }')
+          
+          echo "📤 Enviando payload para Edge Function..."
+          
+          # Enviar para Edge Function
+          HTTP_CODE=$(curl -s -o response.txt -w "%{http_code}" -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $SUPABASE_EDGE_SECRET" \
+            -d "$PAYLOAD" \
+            "$SUPABASE_EDGE_URL")
+          
+          echo "📡 HTTP Code: $HTTP_CODE"
+          echo "📋 Response:"
+          cat response.txt
+          echo ""
+          
+          # Verificar resposta
+          if [ "$HTTP_CODE" -eq 200 ]; then
+            SUCCESS=$(cat response.txt | jq -r '.success // false')
+            if [ "$SUCCESS" = "true" ]; then
+              echo "✅ Banco de dados atualizado com sucesso!"
+              PROCESSED=$(cat response.txt | jq -r '.indicators_processed // 0')
+              DELETED=$(cat response.txt | jq -r '.indicators_deleted // 0')
+              echo "📊 Processados: $PROCESSED | Deletados: $DELETED"
+            else
+              echo "❌ Falha ao atualizar banco de dados"
+              cat response.txt | jq -r '.error // "Erro desconhecido"'
+              exit 1
+            fi
+          else
+            echo "❌ Erro HTTP: $HTTP_CODE"
+            cat response.txt
+            exit 1
+          fi
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const addedFiles = JSON.parse('${{ needs.detect-changes.outputs.added-files }}' || '[]');
+            const modifiedFiles = JSON.parse('${{ needs.detect-changes.outputs.modified-files }}' || '[]');
+            const deletedFiles = JSON.parse('${{ needs.detect-changes.outputs.deleted-files }}' || '[]');
+            
+            let body = `## ✅ Public Indicators Database Atualizado!\n\n`;
+            
+            if (addedFiles.length > 0) {
+              body += `### ➕ Indicadores Adicionados (${addedFiles.length})\n`;
+              addedFiles.forEach(f => body += `- \`${f}\`\n`);
+              body += '\n';
+            }
+            
+            if (modifiedFiles.length > 0) {
+              body += `### ✏️ Indicadores Modificados (${modifiedFiles.length})\n`;
+              modifiedFiles.forEach(f => body += `- \`${f}\`\n`);
+              body += '\n';
+            }
+            
+            if (deletedFiles.length > 0) {
+              body += `### 🗑️ Indicadores Removidos (${deletedFiles.length})\n`;
+              deletedFiles.forEach(f => body += `- \`${f}\`\n`);
+              body += '\n';
+            }
+            
+            body += `\n---\n*Atualizado automaticamente pelo GitHub Actions*`;
+            
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('Public Indicators Database')
+            );
+            
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }
