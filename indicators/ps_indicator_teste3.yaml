@@ -1,0 +1,8 @@
+name: Teste de Pipeline 3
+description: Testando importação automática
+regex: TesteRegex
+basescore: 5.0
+tactic: Execution
+technique: [T1059]
+reference:
+  - https://example.com
