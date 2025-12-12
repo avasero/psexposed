@@ -91,6 +91,7 @@ function filterValidPatterns(patterns: string[]): string[] {
 
 /**
  * Faz o parse do conteúdo YAML e retorna um indicador formatado para o banco
+ * Retorna um objeto com sucesso ou erro detalhado
  */
 function parseYamlContent(
   content: string,
@@ -98,20 +99,23 @@ function parseYamlContent(
   link?: string,
   lastModifiedBy?: string,
   lastModifiedByAvatar?: string
-): DatabaseIndicator | null {
+): { indicator: DatabaseIndicator | null; error?: string } {
   try {
+    console.log(`🔄 Iniciando parse de: ${filePath}`);
     const yamlData = yaml.load(content) as YamlIndicator;
 
     if (!yamlData) {
-      console.log(`❌ YAML vazio ou inválido: ${filePath}`);
-      return null;
+      const error = `YAML vazio ou inválido: ${filePath}`;
+      console.log(`❌ ${error}`);
+      return { indicator: null, error };
     }
 
     // Campos obrigatórios
     const name = yamlData.name?.trim();
     if (!name) {
-      console.log(`❌ Campo 'name' obrigatório não encontrado: ${filePath}`);
-      return null;
+      const error = `Campo 'name' obrigatório não encontrado: ${filePath}`;
+      console.log(`❌ ${error}`);
+      return { indicator: null, error };
     }
 
     // Processar description
@@ -197,10 +201,12 @@ function parseYamlContent(
       indicator.last_modified_by_avatar = lastModifiedByAvatar;
     }
 
-    return indicator;
+    return { indicator };
   } catch (error) {
-    console.log(`❌ Erro ao fazer parse do YAML ${filePath}: ${error.message}`);
-    return null;
+    const errorDetail = `Erro ao fazer parse do YAML ${filePath}: ${error.message}`;
+    console.log(`❌ ${errorDetail}`);
+    console.log(`📄 Conteúdo do YAML (primeiros 500 chars): ${content.substring(0, 500)}`);
+    return { indicator: null, error: errorDetail };
   }
 }
 
@@ -378,7 +384,7 @@ serve(async (req) => {
         }
       } else if (item.action === "upsert" && item.content) {
         // Parse do YAML e upsert
-        const indicator = parseYamlContent(
+        const parseResult = parseYamlContent(
           item.content,
           item.file_path,
           item.link,
@@ -386,8 +392,8 @@ serve(async (req) => {
           item.last_modified_by_avatar
         );
 
-        if (indicator) {
-          const result = await upsertIndicator(supabase, indicator);
+        if (parseResult.indicator) {
+          const result = await upsertIndicator(supabase, parseResult.indicator);
           if (result.success) {
             processedCount++;
             if (result.isNew) {
@@ -399,7 +405,7 @@ serve(async (req) => {
             errors.push(result.error);
           }
         } else {
-          errors.push(`Falha ao fazer parse do YAML: ${item.file_path}`);
+          errors.push(parseResult.error || `Falha ao fazer parse do YAML: ${item.file_path}`);
         }
       } else {
         console.log(`⚠️ Ação inválida ou conteúdo ausente: ${item.file_path}`);
