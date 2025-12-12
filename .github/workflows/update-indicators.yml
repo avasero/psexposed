@@ -11,28 +11,48 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Process changed YAML files
+      - name: Detect changed YAML files
+        id: changed
         run: |
-          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD | grep "indicators/.*\.ya" || true)
+          # Tenta obter arquivos alterados (para commits normais)
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD -- "indicators/**/*.ya*" || true)
 
+          # Se vazio (primeiro commit ou rebase), usar fallback
           if [ -z "$CHANGED_FILES" ]; then
-            echo "No YAML files changed."
-            exit 0
+            echo "Fallback: listing all YAMLs in indicators/"
+            CHANGED_FILES=$(ls indicators/*.ya* 2>/dev/null || true)
           fi
 
-          for file in $CHANGED_FILES; do
-            echo "Sending $file..."
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
 
+          # Exporta para GitHub Actions
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Stop if no YAML files found
+        if: steps.changed.outputs.files == ''
+        run: |
+          echo "No YAML files changed or available. Exiting."
+          exit 0
+
+      - name: Send YAMLs to Supabase Edge Function
+        run: |
+          for file in ${{ steps.changed.outputs.files }}; do
+            echo "Processing: $file"
+
+            # Escapar aspas para enviar via JSON
             CONTENT=$(cat $file | sed 's/"/\\"/g')
 
             curl -X POST \
               -H "Content-Type: application/json" \
               -H "Authorization: Bearer $SUPABASE_EDGE_SECRET" \
               -d "{\"file_path\": \"$file\", \"content\": \"$CONTENT\"}" \
-              $SUPABASE_EDGE_URL
+              "$SUPABASE_EDGE_URL"
           done
         env:
           SUPABASE_EDGE_URL: ${{ secrets.SUPABASE_EDGE_URL }}
