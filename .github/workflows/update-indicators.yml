@@ -1,16 +1,9 @@
 name: Update Public Indicators Database
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-    paths:
-      - 'indicators/**/*.yaml'
-      - 'indicators/**/*.yml'
-      - '.github/workflows/update-indicators.yml'
   push:
     branches:
       - main
-      - master
     paths:
       - 'indicators/**/*.yaml'
       - 'indicators/**/*.yml'
