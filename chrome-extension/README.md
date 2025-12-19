@@ -4,8 +4,8 @@ Google Chrome extension for analyzing PowerShell scripts directly from your brow
 
 ## Installation
 
-1. Download the extension from the GITHUB REPO and load it manually in developer mode at chrome://extensions.
-2. After installation, the extension icon will appear in the Chrome toolbar
+1. Download the extension from the GITHUB repository and load it manually in developer mode at chrome://extensions.
+2. After installation, the extension icon will appear in the Chrome toolbar.
 
 ## Initial Setup
 
