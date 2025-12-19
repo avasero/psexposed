@@ -1,4 +1,4 @@
-# powerShell.exposed - Chrome Extension
+# powershell.exposed - Chrome Extension
 
 Google Chrome extension for analyzing PowerShell scripts directly from your browser.
 
