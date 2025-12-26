@@ -1,0 +1,10 @@
+name: example ( integration working ) 4
+description: example indicator 4
+regex: example 4
+max_match: 9
+basescore: 4.0
+tactic: tatic
+technique:
+reference:
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/powershell/powershell_script/posh_ps_susp_keywords.yml
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/powershell/powershell_script/posh_ps_malicious_keywords.yml
