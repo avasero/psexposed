@@ -96,22 +96,40 @@ jobs:
           CHANGED_FILES: ${{ needs.step-1-detect-changes.outputs.changed-files }}
         run: |
           echo "=== STEP 3: REQUIRED FIELDS ==="
-          REQUIRED="name description regex basescore tactic technique reference"
           ERRORS=0
           
           for file in $(echo "$CHANGED_FILES" | jq -r '.[]'); do
             [ ! -f "$file" ] && continue
             echo "Checking: $file"
-            MISSING=""
-            for field in $REQUIRED; do
-              grep -q "^${field}:" "$file" || MISSING="$MISSING $field"
-            done
             
-            if [ -n "$MISSING" ]; then
-              echo "  MISSING:$MISSING"
+            # Create validation script that checks fields exist AND have values
+            cat > /tmp/check_fields.py << 'PYSCRIPT'
+          import yaml
+          import sys
+          
+          filepath = sys.argv[1]
+          REQUIRED = ['name', 'description', 'regex', 'basescore', 'tactic', 'technique', 'reference']
+          
+          with open(filepath) as f:
+              data = yaml.safe_load(f)
+          
+          missing = []
+          for field in REQUIRED:
+              val = data.get(field)
+              # Check if field is missing, None, empty string, or empty list
+              if val is None or val == '' or (isinstance(val, list) and len(val) == 0):
+                  missing.append(field)
+          
+          if missing:
+              print(f"  MISSING: {' '.join(missing)}")
+              sys.exit(1)
+          else:
+              print("  OK")
+              sys.exit(0)
+          PYSCRIPT
+            
+            if ! python3 /tmp/check_fields.py "$file"; then
               ERRORS=$((ERRORS + 1))
-            else
-              echo "  OK"
             fi
           done
           
