@@ -1,8 +1,8 @@
 name: WMI usage
-description: tba
+description: Detects general WMI usage.
 regex: WmiCommand|PowerShellWMI|wmiobject|WMIMethod|RemoteWMI|PowerShellWmi|(iwmi|gwmi)\s+
 basescore: 5
-tactic: [tba]
-technique: [tba]
+tactic: [TA0002]
+technique: [T1047]
 reference:
-  - https://www.avasero.com/
+  - https://attack.mitre.org/techniques/T1047/
