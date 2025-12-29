@@ -31,4 +31,8 @@ The regular expressions used in this project follow the [Perl Compatible Regular
 #### 3.1 A few notes to consider when using regex in Splunk/SPL:
 
 - The reverse slash must be double escaped in SPL. Therefore, anywhere you see a "\\" consider adding an extra reverse slash to consume the regex in SPL. Reference [here](https://help.splunk.com/en/splunk-enterprise/search/search-manual/9.4/expressions-and-predicates/spl-and-regular-expressions).
-- Some indicators (ex.: encodedCommand [add ref/link later]) make use of unicode char references. PCRE follows \uXXXX template in patterns wherea Splunk's SPL expects unicode as \x{XXXX}. We are going to warn you about that in each indicator but consider that in case you consume the indicators 'as is'. 
+- Some indicators (ex.: [Encoded command usage](https://github.com/avasero/psexposed/blob/main/indicators/ps_indicator_encodedcommand.yaml)) make use of unicode char references. PCRE follows \uXXXX template in patterns whereas Splunk's SPL expects unicode as \x{XXXX}. We are going to warn you about that in each indicator but consider that in case you consume the indicators 'as is'.
+
+#### 3.2 A few notes to consider when consuming the regex values:
+
+- Make sure they are wrapped with double quotes as those are escaped within the values themselves, unless you want to revert it by escaping the single quotes instead.
