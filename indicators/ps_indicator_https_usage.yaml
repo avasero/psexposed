@@ -1,6 +1,6 @@
 name: HTTP/S usage
 description: Highlights commands containing a potential URL by matching against an HTTP/S reference. Consider filtering out URLs containing private/known addresses.
-regex: "(https*):"
+regex: (https*)://
 basescore: 7
 tactic: [TA0011]
 technique: [T1059.001, T1071.001]
