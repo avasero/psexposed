@@ -1,6 +1,6 @@
 name: Windows registry activity
 description: Indicates potential Windows registry activity.
-regex: Win32\.Registry|HK(LM|CU):.+[\\\](Run|Policies|Services|System|Software|Environment)|HKEY_LOCAL_MACHINE|HKEY_CURRENT_USER|StdRegProv
+regex: Win32\.Registry|HK(LM|CU):.+[\\\\](Run|Policies|Services|System|Software|Environment)|HKEY_LOCAL_MACHINE|HKEY_CURRENT_USER|StdRegProv
 basescore: 5.6
 tactic: Execution
 technique: [T1059.001, T1547.001]
