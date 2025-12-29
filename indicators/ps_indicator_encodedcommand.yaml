@@ -1,6 +1,6 @@
 name: Encoded command usage
-description: Detects the usage of encoded command in multiple forms. For SPL, replace the unicodes (\uNNNN) for \x{NNNN} format and refer to FAQ 3.1 entry.
-regex: [\u002D\u2013\u2014\u2015/](?:ec|e(?:n(?:c(?:o(?:d(?:e(?:d(?:c(?:o(?:m(?:m(?:a(?:n(?:d)?)?)?)?)?)?)?)?)?)?)?)?)?)\s+[\"']*\s*[a-z0-9+/]{20,}={0,2}
+description: Detects the usage of encoded command in multiple forms. The usage of multiple ? chars is to disble capturing on the parameter itself and capture the base64 string only. For SPL, replace the unicodes (\uNNNN) for \xDetects the usage of encoded command in m
+regex: [\u002D\u2013\u2014\u2015/](?:ec|e(?:n(?:c(?:o(?:d(?:e(?:d(?:c(?:o(?:m(?:m(?:a(?:n(?:d)?)?)?)?)?)?)?)?)?)?)?)?)?)\s+[\"']*\s*([a-z0-9+/]{20,}={0,2})
 basescore: 4.5
 tactic: Execution
 technique: [T1059.001, T1027]
