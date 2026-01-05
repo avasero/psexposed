@@ -250,10 +250,27 @@ jobs:
           SUPABASE_EDGE_SECRET: ${{ secrets.SUPABASE_EDGE_SECRET }}
           UPSERT_FILES: ${{ needs.step-1-detect-changes.outputs.upsert-files }}
           DELETED_FILES: ${{ needs.step-1-detect-changes.outputs.deleted-files }}
-          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          COMMIT_SHA: ${{ github.sha }}
         run: |
           echo "=== STEP 6: UPDATE DATABASE ==="
-          echo "Author: $GITHUB_ACTOR"
+          
+          # Try to get PR author, fallback to commit author
+          PR_AUTHOR=$(gh pr list --search "$COMMIT_SHA" --state merged --json author --jq '.[0].author.login' 2>/dev/null || true)
+          
+          if [ -z "$PR_AUTHOR" ]; then
+            # Fallback: try to find PR by commit
+            PR_AUTHOR=$(gh pr list --search "$COMMIT_SHA" --state all --json author --jq '.[0].author.login' 2>/dev/null || true)
+          fi
+          
+          if [ -z "$PR_AUTHOR" ]; then
+            # Final fallback: use commit author
+            PR_AUTHOR=$(git log -1 --format='%an' | tr ' ' '-' || echo "unknown")
+            echo "No PR found, using commit author: $PR_AUTHOR"
+          else
+            echo "PR Author: $PR_AUTHOR"
+          fi
           
           INDICATORS_DATA="[]"
           
@@ -261,12 +278,12 @@ jobs:
             if [ -f "$file" ]; then
               echo "Processing: $file"
               LINK="https://github.com/${{ github.repository }}/blob/main/$file"
-              AVATAR="https://github.com/${GITHUB_ACTOR}.png"
+              AVATAR="https://github.com/${PR_AUTHOR}.png"
               
               INDICATOR_JSON=$(jq -n \
                 --arg fp "$file" \
                 --arg lk "$LINK" \
-                --arg mb "$GITHUB_ACTOR" \
+                --arg mb "$PR_AUTHOR" \
                 --arg av "$AVATAR" \
                 --rawfile ct "$file" \
                 '{file_path:$fp,content:$ct,link:$lk,last_modified_by:$mb,last_modified_by_avatar:$av,action:"upsert"}')
@@ -288,7 +305,7 @@ jobs:
           
           echo "Sending $TOTAL indicator(s)..."
           
-          PAYLOAD=$(jq -n --argjson ind "$INDICATORS_DATA" --arg ga "$GITHUB_ACTOR" '{indicators:$ind,github_actor:$ga}')
+          PAYLOAD=$(jq -n --argjson ind "$INDICATORS_DATA" --arg ga "$PR_AUTHOR" '{indicators:$ind,github_actor:$ga}')
           
           if [[ "$SUPABASE_EDGE_URL" == */functions/v1* ]]; then
             URL="$SUPABASE_EDGE_URL/update-database-public-indicators"
