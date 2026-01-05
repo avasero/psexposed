@@ -1,0 +1,10 @@
+name: first ever indicator
+description: first ever indicator
+regex: first ever indicator
+max_match: 9
+basescore: 4.0
+tactic: tatic
+technique:
+reference:
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/powershell/powershell_script/posh_ps_susp_keywords.yml
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/powershell/powershell_script/posh_ps_malicious_keywords.yml
