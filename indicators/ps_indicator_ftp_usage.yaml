@@ -1,0 +1,8 @@
+name: FTP usage
+description: Matches against use of *FTP (TFTP, SFTP, etc) by inspecting the url scheme which indicates notable data transfer via PS.
+regex: ftp://[^\.]+\.[^\.]+
+basescore: 10
+tactic: TA0011
+technique: [T1105, T1071, T1048.003, T1059.001]
+reference:
+  - https://attack.mitre.org/detectionstrategies/DET0416/

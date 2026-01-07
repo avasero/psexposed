@@ -1,0 +1,9 @@
+name: Long base64 string
+description: Identifies long Base64 blobs embedded in PowerShell commands, a common technique for hiding payloads, configuration data, or staged execution logic without relying on -EncodedCommand.
+regex: [a-z0-9+/]{260,}={0,2}
+basescore: 7.0
+tactic: [Defense Evasion, Execution]
+technique: [T1027.001, T1059.001]
+reference:
+  - https://blogs.vmware.com/security/2023/03/how-to-detect-poshc2-powershell-implants.html
+  - https://gist.github.com/githubfoam/0f6691b47a71486b25502e4e456d735e

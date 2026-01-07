@@ -1,0 +1,10 @@
+name: Named pipe activity
+description: Spots .NET named pipes for inter-process communication, often used for C2 or pivoting.
+regex: AnonymousPipeClientStream|NamedPipeServerStream|System\.IO\.Pipes
+basescore: 10
+tactic: TA0011
+technique: [T1059.001, T1559.001]
+reference:
+  - https://specterops.io/blog/2019/05/01/designing-peer-to-peer-command-and-control/
+  - https://www.lrqa.com/en/cyber-labs/extending-c2-lateral-movement-invoke-pbind/
+  - https://learn.microsoft.com/en-us/dotnet/api/system.io.pipes
