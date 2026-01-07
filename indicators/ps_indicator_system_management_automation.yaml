@@ -1,0 +1,8 @@
+name: System.Management.Automation reference
+description: Detects references to PowerShell’s System.Management.Automation runtime, which may indicate embedded or in-memory PowerShell execution outside the standard host.
+regex: (system\.management\.automation)
+basescore: 8.8
+tactic: [TA0002]
+technique: [T1059.001]
+reference:
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/image_load/image_load_dll_system_management_automation_susp_load.yml

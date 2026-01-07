@@ -1,0 +1,8 @@
+name: Notable charset
+description: tba
+regex: [\u0400-\u04FF\u0500-\u052F\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F\u4E00-\u9FFF\u3400-\u4DBF]
+basescore: 5.4
+tactic: [tba]
+technique: [tba]
+reference:
+  - https://www.avasero.com/

@@ -1,0 +1,8 @@
+name: Common Azure Enumeration cmdlets
+description: tba
+regex: Get-Azure(user|group)
+basescore: 4.5
+tactic: [tba]
+technique: [tba]
+reference:
+  - https://www.avasero.com/

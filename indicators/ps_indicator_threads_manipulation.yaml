@@ -1,0 +1,10 @@
+name: Threads manipulation
+description: Tracks the creation or manipulation of execution threads, often used for injection attacks or detection evasion.
+regex: createthread|threading\.thread
+basescore: 10.0
+tactic: TA0005
+technique: [T1055, T1059.001]
+reference:
+  - https://www.ired.team/offensive-security/code-injection-process-injection/process-injection
+  - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1055/T1055.md
+  - https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createthread
