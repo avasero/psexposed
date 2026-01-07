@@ -32,8 +32,11 @@ jobs:
         id: check-changes
         run: |
           echo "=== STEP 1: DETECT CHANGES ==="
+          # Fetch the head branch of the PR so we can diff against it
+          git fetch origin pull/${{ github.event.pull_request.number }}/head:pr-head
+          
           BASE_SHA="${{ github.event.pull_request.base.sha }}"
-          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          HEAD_SHA="pr-head"
           
           CHANGED_FILES=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" -- 'indicators/*.yaml' 'indicators/*.yml' || true)
           
@@ -62,6 +65,9 @@ jobs:
     
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
 
       - name: Validate YAML
         env:
@@ -106,6 +112,9 @@ jobs:
     
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
 
       - name: Check fields
         env:
@@ -141,6 +150,9 @@ jobs:
     
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
 
       - name: Validate types
         env:
@@ -203,6 +215,9 @@ jobs:
     
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
 
       - name: Validate regex
         env:
