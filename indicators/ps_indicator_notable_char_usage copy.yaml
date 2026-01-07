@@ -1,0 +1,8 @@
+name: Notable [char] usage
+description: tba
+regex: (convert|byte|length|xor|substring|join|toint|tostr)*[\s\S]*\[char[\s\S]*(convert|byte|length|xor|substring|join|toint|tostr)*
+basescore: 8
+tactic: [tba]
+technique: [tba]
+reference:
+  - https://www.avasero.com/

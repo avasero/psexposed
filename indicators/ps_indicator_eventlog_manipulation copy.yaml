@@ -1,0 +1,8 @@
+name: Eventlog/ETW Manipulation
+description: tba
+regex: eventlog|\.evtx|EventLog-App|-etwtrace|-eventlog
+basescore: 6
+tactic: [tba]
+technique: [tba]
+reference:
+  - https://www.avasero.com/
