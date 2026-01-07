@@ -1,6 +1,6 @@
-name: Long base64 strings
-description: Because attackers stuf f all kinds of badness into base64 blobs even when they’re not using -EncodedCommand. Watching for long base64 inside PowerShell catches a bunch of common tradecraft.
-regex: (?i)[a-z0-9+/=]{100,}
+name: Long base64 string
+description: Identifies long Base64 blobs embedded in PowerShell commands, a common technique for hiding payloads, configuration data, or staged execution logic without relying on -EncodedCommand.
+regex: [a-z0-9+/]{260,}={0,2}
 basescore: 7.0
 tactic: [Defense Evasion, Execution]
 technique: [T1027.001, T1059.001]

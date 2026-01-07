@@ -1,8 +1,8 @@
 name: Email related reference
-description: tba
+description: Spots obvious email related commands and references.
 regex: Mail(box|from|to|message|kit)|attachment|\b-(from|to)\s+\S+@\S+\.\S+|send\S*mail
 basescore: 5.7
-tactic: [tba]
-technique: [tba]
+tactic: [TA0011]
+technique: [T1071.003]
 reference:
-  - https://www.avasero.com/
+  - https://attack.mitre.org/techniques/T1071/003/
