@@ -1,8 +1,0 @@
-name: Notable Invoke-Expression reference
-description: tba
-regex: \b(iex|Invoke[\-—–―]Expression)\s+2>&1|\biex\(
-basescore: 8.7
-tactic: [tba]
-technique: [tba]
-reference:
-  - https://www.avasero.com/
