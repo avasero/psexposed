@@ -91,7 +91,7 @@ jobs:
               content = f.read()
           
           # Remove regex field entirely to avoid false positives from complex patterns
-          content_no_regex = re.sub( r'^regex: .+', '', content, flags=re.MULTILINE | re.DOTALL)
+          content_no_regex = re.sub(r'^regex:.*?(?=^\w|\Z)', '', content, flags=re.MULTILINE | re.DOTALL)
           
           try:
               yaml.safe_load(content_no_regex)
@@ -168,7 +168,7 @@ jobs:
               content = f.read()
           
           # Remove regex field to avoid parsing issues
-          content_no_regex = re.sub( r'^regex: .+', '', content, flags=re.MULTILINE | re.DOTALL)
+          content_no_regex = re.sub(r'^regex:.*?(?=^\w|\Z)', '', content, flags=re.MULTILINE | re.DOTALL)
           data = yaml.safe_load(content_no_regex)
           
           errors = 0
