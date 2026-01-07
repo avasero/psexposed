@@ -1,0 +1,9 @@
+name: Suspicious cmdlet
+description: Highlights strings potentially linked to suspicious PS cmdlets. It was initially inspired on a Sigma rule (refer to references).
+regex: Check-VM|Find-GPOLocation|Find-TrustedDocuments|Get-ApplicationHost|Get-IndexedItem|Get-RegAutoLogon|Get-SiteListPassword|Get-System|Get-VaultCredential|HTTP-Login|Install-SSP|Invoke-EgressCheck|Invoke-PostExfil|Invoke-PsExec|Invoke-ReverseDNSLookup|Invoke-SSHCommand|Invoke-Service|Remove-Update|Show-TargetScreen|(Computer|User)Property|invoke-\S+hunter|remoteps|Kerberos.*(policy|ticket)|Uninstall-Windows|copy-vss|out-shortcut|-gppp|Resolve-DnsName|Invoke-PSImage
+maxmatch: 1
+basescore: 8.8
+tactic: Execution
+technique: T1059.001
+reference:
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_powershell_malicious_cmdlets.yml

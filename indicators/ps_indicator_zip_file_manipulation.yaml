@@ -1,0 +1,8 @@
+name: Compressed File Manipulation
+description: tba
+regex: GZipStream|IO.Compression|(expand|compress)-Archive|-7*zip|ExtractToDirectory
+basescore: 3.8
+tactic: [tba]
+technique: [tba]
+reference:
+  - https://www.avasero.com/
