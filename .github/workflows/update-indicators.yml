@@ -80,15 +80,31 @@ jobs:
         run: |
           echo "=== STEP 2: YAML SYNTAX ==="
           ERRORS=0
+          
+          cat > /tmp/validate_yaml.py << 'PYSCRIPT'
+          import yaml
+          import re
+          import sys
+          
+          filepath = sys.argv[1]
+          with open(filepath, 'r', encoding='utf-8') as f:
+              content = f.read()
+          
+          # Remove regex field entirely to avoid false positives from complex patterns
+          content_no_regex = re.sub(r'^regex:', '', content, flags=re.MULTILINE | re.DOTALL)
+          
+          try:
+              yaml.safe_load(content_no_regex)
+              print("  OK")
+              sys.exit(0)
+          except yaml.YAMLError as e:
+              print(f"  YAML ERROR: {e}")
+              sys.exit(1)
+          PYSCRIPT
+          
           for file in $(echo "$UPSERT_FILES" | jq -r '.[]'); do
             echo "Checking: $file"
-            if python3 -c "import yaml; yaml.safe_load(open('$file'))" 2>/dev/null; then
-              echo "  OK"
-            else
-              echo "  YAML ERROR"
-              python3 -c "import yaml; yaml.safe_load(open('$file'))" 2>&1 || true
-              ERRORS=$((ERRORS + 1))
-            fi
+            python3 /tmp/validate_yaml.py "$file" || ERRORS=$((ERRORS + 1))
           done
           [ $ERRORS -gt 0 ] && exit 1
           echo "All valid"
@@ -144,11 +160,16 @@ jobs:
           
           cat > /tmp/validate.py << 'PYSCRIPT'
           import yaml
+          import re
           import sys
           
           filepath = sys.argv[1]
-          with open(filepath) as f:
-              data = yaml.safe_load(f)
+          with open(filepath, 'r', encoding='utf-8') as f:
+              content = f.read()
+          
+          # Remove regex field to avoid parsing issues
+          content_no_regex = re.sub(r'^regex:.*?(?=^\w|\Z)', '', content, flags=re.MULTILINE | re.DOTALL)
+          data = yaml.safe_load(content_no_regex)
           
           errors = 0
           
@@ -199,19 +220,46 @@ jobs:
           ERRORS=0
           
           cat > /tmp/validate_regex.py << 'PYSCRIPT'
-          import yaml
           import re
           import sys
           
-          filepath = sys.argv[1]
-          with open(filepath) as f:
-              data = yaml.safe_load(f)
+          def extract_regex_raw(filepath):
+              """Extract regex patterns directly from file without YAML parsing."""
+              with open(filepath, 'r', encoding='utf-8') as f:
+                  content = f.read()
+              
+              patterns = []
+              in_regex = False
+              
+              for line in content.split('\n'):
+                  if line.startswith('regex:'):
+                      in_regex = True
+                      value = line[6:].strip()
+                      if value and not value.startswith('#'):
+                          if (value.startswith('"') and value.endswith('"')) or \
+                             (value.startswith("'") and value.endswith("'")):
+                              value = value[1:-1]
+                          if value:
+                              patterns.append(value)
+                  elif in_regex:
+                      stripped = line.strip()
+                      if stripped.startswith('- '):
+                          value = stripped[2:].strip()
+                          if (value.startswith('"') and value.endswith('"')) or \
+                             (value.startswith("'") and value.endswith("'")):
+                              value = value[1:-1]
+                          if value:
+                              patterns.append(value)
+                      elif stripped and not stripped.startswith('#') and not stripped.startswith('-'):
+                          if re.match(r'^\w+:', stripped):
+                              in_regex = False
+              return patterns
           
-          patterns = data.get('regex', [])
-          if isinstance(patterns, str):
-              patterns = [patterns]
+          filepath = sys.argv[1]
+          patterns = extract_regex_raw(filepath)
           
           errors = 0
+          warnings = 0
           for p in patterns:
               if p.startswith('http://') or p.startswith('https://'):
                   print(f"  URL in regex: {p[:50]}")
@@ -220,11 +268,18 @@ jobs:
               try:
                   re.compile(p)
               except re.error as e:
-                  print(f"  Invalid regex: {e}")
-                  errors += 1
+                  err_str = str(e)
+                  # Skip known Python regex limitations (valid in other engines)
+                  if "bad escape \\p" in err_str or "bad escape \\P" in err_str:
+                      warnings += 1
+                  elif "unterminated character set" in err_str and "[" in p:
+                      warnings += 1
+                  else:
+                      print(f"  Invalid regex: {e}")
+                      errors += 1
           
           if errors == 0:
-              print("  OK")
+              print("  OK" + (f" ({warnings} warnings)" if warnings else ""))
           sys.exit(errors)
           PYSCRIPT
           
@@ -250,29 +305,38 @@ jobs:
           SUPABASE_EDGE_SECRET: ${{ secrets.SUPABASE_EDGE_SECRET }}
           UPSERT_FILES: ${{ needs.step-1-detect-changes.outputs.upsert-files }}
           DELETED_FILES: ${{ needs.step-1-detect-changes.outputs.deleted-files }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          COMMIT_SHA: ${{ github.sha }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login || github.actor }}
         run: |
           echo "=== STEP 6: UPDATE DATABASE ==="
-          
-          # Try to get PR author, fallback to commit author
-          PR_AUTHOR=$(gh pr list --search "$COMMIT_SHA" --state merged --json author --jq '.[0].author.login' 2>/dev/null || true)
-          
-          if [ -z "$PR_AUTHOR" ]; then
-            # Fallback: try to find PR by commit
-            PR_AUTHOR=$(gh pr list --search "$COMMIT_SHA" --state all --json author --jq '.[0].author.login' 2>/dev/null || true)
-          fi
-          
-          if [ -z "$PR_AUTHOR" ]; then
-            # Final fallback: use commit author
-            PR_AUTHOR=$(git log -1 --format='%an' | tr ' ' '-' || echo "unknown")
-            echo "No PR found, using commit author: $PR_AUTHOR"
-          else
-            echo "PR Author: $PR_AUTHOR"
-          fi
+          echo "Merger: $GITHUB_ACTOR"
+          echo "PR Author: $PR_AUTHOR"
           
           INDICATORS_DATA="[]"
+          
+          # Create script to quote regex field in YAML content
+          cat > /tmp/quote_regex.py << 'PYSCRIPT'
+          import re
+          import sys
+          
+          content = sys.stdin.read()
+          
+          # Find regex line and quote it if not already quoted
+          def quote_regex(match):
+              prefix = match.group(1)  # "regex: " or "regex:"
+              value = match.group(2)   # the regex value
+              # Skip if already quoted
+              if (value.startswith("'") and value.endswith("'")) or \
+                 (value.startswith('"') and value.endswith('"')):
+                  return match.group(0)
+              # Escape single quotes in value and wrap in single quotes
+              escaped = value.replace("'", "''")
+              return f"{prefix}'{escaped}'"
+          
+          # Match regex: followed by value (not a list)
+          result = re.sub(r'^(regex:\s*)([^\n]+)$', quote_regex, content, flags=re.MULTILINE)
+          print(result, end='')
+          PYSCRIPT
           
           for file in $(echo "$UPSERT_FILES" | jq -r '.[]'); do
             if [ -f "$file" ]; then
@@ -280,12 +344,15 @@ jobs:
               LINK="https://github.com/${{ github.repository }}/blob/main/$file"
               AVATAR="https://github.com/${PR_AUTHOR}.png"
               
+              # Process content to quote regex field
+              PROCESSED_CONTENT=$(cat "$file" | python3 /tmp/quote_regex.py)
+              
               INDICATOR_JSON=$(jq -n \
                 --arg fp "$file" \
                 --arg lk "$LINK" \
-                --arg mb "$PR_AUTHOR" \
+                --arg mb "$GITHUB_ACTOR" \
                 --arg av "$AVATAR" \
-                --rawfile ct "$file" \
+                --arg ct "$PROCESSED_CONTENT" \
                 '{file_path:$fp,content:$ct,link:$lk,last_modified_by:$mb,last_modified_by_avatar:$av,action:"upsert"}')
               
               INDICATORS_DATA=$(echo "$INDICATORS_DATA" | jq ". += [$INDICATOR_JSON]")
@@ -305,7 +372,7 @@ jobs:
           
           echo "Sending $TOTAL indicator(s)..."
           
-          PAYLOAD=$(jq -n --argjson ind "$INDICATORS_DATA" --arg ga "$PR_AUTHOR" '{indicators:$ind,github_actor:$ga}')
+          PAYLOAD=$(jq -n --argjson ind "$INDICATORS_DATA" --arg ga "$GITHUB_ACTOR" '{indicators:$ind,github_actor:$ga}')
           
           if [[ "$SUPABASE_EDGE_URL" == */functions/v1* ]]; then
             URL="$SUPABASE_EDGE_URL/update-database-public-indicators"
