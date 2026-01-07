@@ -1,0 +1,9 @@
+name: Example
+description: Example indicator for demonstration purposes.
+regex: Example regex pattern
+basescore: 4.8
+tactic: Execution
+technique: [T1059.001, T1069.002, T1087]
+reference:
+  - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1069.002/T1069.002.md
+  - https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/using-dsacls-to-check-ad-object-permissions
