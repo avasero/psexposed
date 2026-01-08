@@ -38,7 +38,7 @@ jobs:
           BASE_SHA="${{ github.event.pull_request.base.sha }}"
           HEAD_SHA="pr-head"
           
-          CHANGED_FILES=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" -- 'indicators/*.yaml' 'indicators/*.yml' || true)
+          CHANGED_FILES=$(git diff --name-only --no-renames "$BASE_SHA" "$HEAD_SHA" -- 'indicators/*.yaml' 'indicators/*.yml' || true)
           
           if [ -z "$CHANGED_FILES" ]; then
             echo "has_changes=false" >> $GITHUB_OUTPUT
@@ -342,6 +342,10 @@ jobs:
 
       - name: Check result
         run: |
-          if [ "${{ needs.step-5-regex-patterns.result }}" != "success" ] && [ "${{ needs.step-5-regex-patterns.result }}" != "skipped" ]; then
-            exit 1
+          if [ "${{ needs.step-1-detect-changes.outputs.has-changes }}" = "true" ]; then
+            if [ "${{ needs.step-5-regex-patterns.result }}" != "success" ]; then
+              echo "ERROR: Validation chain failed or was skipped."
+              exit 1
+            fi
           fi
+          echo "SUCCESS: Validation passed or no changes to validate."

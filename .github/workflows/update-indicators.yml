@@ -31,9 +31,9 @@ jobs:
           echo "=== STEP 1: DETECT CHANGES ==="
           
           if git rev-parse HEAD~1 >/dev/null 2>&1; then
-            ADDED=$(git diff --name-status HEAD~1 HEAD | grep '^A' | awk '{print $2}' | grep '^indicators/.*\.ya\?ml$' || true)
-            MODIFIED=$(git diff --name-status HEAD~1 HEAD | grep '^M' | awk '{print $2}' | grep '^indicators/.*\.ya\?ml$' || true)
-            DELETED=$(git diff --name-status HEAD~1 HEAD | grep '^D' | awk '{print $2}' | grep '^indicators/.*\.ya\?ml$' || true)
+            ADDED=$(git diff --name-status --no-renames HEAD~1 HEAD | grep '^A' | awk '{print $2}' | grep '^indicators/.*\.ya\?ml$' || true)
+            MODIFIED=$(git diff --name-status --no-renames HEAD~1 HEAD | grep '^M' | awk '{print $2}' | grep '^indicators/.*\.ya\?ml$' || true)
+            DELETED=$(git diff --name-status --no-renames HEAD~1 HEAD | grep '^D' | awk '{print $2}' | grep '^indicators/.*\.ya\?ml$' || true)
           else
             echo "First commit"
             ADDED=$(find indicators -name "*.yaml" -o -name "*.yml" 2>/dev/null || true)
@@ -68,7 +68,7 @@ jobs:
   step-2-yaml-syntax:
     name: "Step 2: YAML Syntax"
     needs: step-1-detect-changes
-    if: needs.step-1-detect-changes.outputs.has-changes == 'true' && needs.step-1-detect-changes.outputs.total-upsert != '0'
+    if: needs.step-1-detect-changes.outputs.has-changes == 'true'
     runs-on: ubuntu-latest
     
     steps:
@@ -411,4 +411,17 @@ jobs:
           echo "Step 5: ${{ needs.step-5-regex-patterns.result }}"
           echo "Step 6: ${{ needs.step-6-update-database.result }}"
           
-          [ "${{ needs.step-6-update-database.result }}" = "success" ] && echo "SUCCESS" || exit 1
+           # The pipeline is successful if Step 1 detected changes and Step 6 succeeded,
+          # OR if Step 1 detected NO changes (everything else skipped).
+          if [ "${{ needs.step-1-detect-changes.outputs.has-changes }}" = "false" ]; then
+            echo "SUCCESS: No changes to process"
+            exit 0
+          fi
+          
+          if [ "${{ needs.step-6-update-database.result }}" = "success" ]; then
+            echo "SUCCESS: Database updated"
+            exit 0
+          else
+            echo "FAILED: Step 6 did not succeed"
+            exit 1
+          fi
