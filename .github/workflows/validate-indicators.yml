@@ -231,56 +231,31 @@ jobs:
           import sys
           
           def extract_regex_raw(filepath):
-              """Extract regex patterns directly from file without YAML parsing."""
+              """Extract regex pattern directly from file without YAML parsing."""
               with open(filepath, 'r', encoding='utf-8') as f:
                   content = f.read()
               
-              patterns = []
-              in_regex = False
-              
               for line in content.split('\n'):
                   if line.startswith('regex:'):
-                      in_regex = True
                       value = line[6:].strip()
-                      if value and not value.startswith('#'):
-                          if (value.startswith('"') and value.endswith('"')) or \
-                             (value.startswith("'") and value.endswith("'")):
-                              value = value[1:-1]
-                          if value:
-                              patterns.append(value)
-                  elif in_regex:
-                      stripped = line.strip()
-                      if stripped.startswith('- '):
-                          value = stripped[2:].strip()
-                          if (value.startswith('"') and value.endswith('"')) or \
-                             (value.startswith("'") and value.endswith("'")):
-                              value = value[1:-1]
-                          if value:
-                              patterns.append(value)
-                      elif stripped and not stripped.startswith('#') and not stripped.startswith('-'):
-                          if re.match(r'^\w+:', stripped):
-                              in_regex = False
-              return patterns
+                      if value:
+                          return value
+              return None
           
           filepath = sys.argv[1]
-          patterns = extract_regex_raw(filepath)
+          pattern = extract_regex_raw(filepath)
           
-          errors = 0
-          warnings = 0
-          for p in patterns:
-              if p.startswith('http://') or p.startswith('https://'):
-                  print(f"  URL in regex: {p[:50]}")
-                  errors += 1
-                  continue
-              try:
-                  re.compile(p)
-              except re.error as e:
-                  errors += 1
-                  print(f"  Invalid regex: {e}")
-                      
-          if errors == 0:
+          if not pattern:
+              print("No regex found")
+              sys.exit(1)
+          
+          try:
+              re.compile(pattern)
               print("Regex valid")
-          sys.exit(errors)
+              sys.exit(0)
+          except re.error as e:
+              print(f"Invalid regex: {e}")
+              sys.exit(1)
           PYSCRIPT
           
           for file in $(echo "$CHANGED_FILES" | jq -r '.[]'); do
