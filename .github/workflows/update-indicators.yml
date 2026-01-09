@@ -268,18 +268,11 @@ jobs:
               try:
                   re.compile(p)
               except re.error as e:
-                  err_str = str(e)
-                  # Skip known Python regex limitations (valid in other engines)
-                  if "bad escape \\p" in err_str or "bad escape \\P" in err_str:
-                      warnings += 1
-                  elif "unterminated character set" in err_str and "[" in p:
-                      warnings += 1
-                  else:
-                      print(f"  Invalid regex: {e}")
-                      errors += 1
-          
+                  errors += 1
+                  print(f"  Invalid regex: {e}")
+                      
           if errors == 0:
-              print("  OK" + (f" ({warnings} warnings)" if warnings else ""))
+              print("Regex valid")
           sys.exit(errors)
           PYSCRIPT
           
