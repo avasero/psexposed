@@ -29,7 +29,7 @@ reference:
 In your Pull Request, include:
 - **Name:** What the indicator spots?
 - **Description:** Why it's important (brief)?
-- **Reference:** What drives the new indicator?
+- **Reference:** What has driven or inspired you?
 - **Max Match:** See below
 - **Base Score:** See below
 
