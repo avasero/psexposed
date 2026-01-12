@@ -1,0 +1,10 @@
+name: Notable file archive extension in URL
+description: Detects HTTP/HTTPS URLs that point to commonly abused archive or container formats used for payload delivery and staging, including RAR, ISO, 7z, and CAB.
+regex: https*://[^/]+/\S+\.(zip|rar|iso|7z|cab|img|arj|z|tar|tgz|(tar\.)*(bgx)z\d*)\b
+basescore: 8.8
+tactic: [TA0001, TA0002]
+technique: [T1566.001, T1105]
+reference:
+  - https://attack.mitre.org/techniques/T1566/001/
+  - https://attack.mitre.org/techniques/T1105/
+  - https://www.atomicredteam.io/atomic-red-team/atomics/T1105

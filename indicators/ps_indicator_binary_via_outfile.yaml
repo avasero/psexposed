@@ -1,0 +1,10 @@
+name: Binary generated via outfile
+description: Detects PowerShell usage of Out-File or -OutFile to write executable or system binary formats to disk, a common payload staging technique used to materialize malware, tools, or loaders from in-memory or downloaded content.
+regex: (-outfile|out-file)\s+\S+\.(exe|bin|dll|msi|scr|cpl|ocx|sys)
+basescore: 9.5
+tactic: [TA0002, TA0005]
+technique: [T1105, T1027]
+reference:
+  - https://attack.mitre.org/techniques/T1105/
+  - https://attack.mitre.org/techniques/T1027/
+  - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1105/T1105.md

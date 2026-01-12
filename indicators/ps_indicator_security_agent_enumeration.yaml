@@ -1,0 +1,10 @@
+name: Security agent enumeration
+description: Detects PowerShell enumeration of common EDR/AV/security agent names via service listing and filtering, a common precursor to defense evasion and tailored follow-on actions. Inspired by a Sigma rule in the references.
+regex: (Where-Object|get-service).+(CrowdStrike|Falcon|SentinelOne|Cylance|Carbon\s?Black|Sophos|Symantec|McAfee|Trellix|Trend\s?Micro|ESET|Kaspersk|Bitdefend|Cybereason|Tanium|Elastic|Cisco\s?AMP|Forti|Morphisec|Palo|FireEye|.*virus|avira)
+basescore: 10
+tactic: [TA0007]
+technique: [T1518.001]
+reference:
+  - https://attack.mitre.org/techniques/T1518/001/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/powershell/powershell_script/posh_ps_get_process_security_software_discovery.yml
+  - https://www.atomicredteam.io/atomic-red-team/atomics/T1518.001
