@@ -1,8 +1,0 @@
-name: Service Manipulation
-description: tba
-regex: (start)-Service|SYSTEM[\\]+CurrentControlSet[\\]+Services
-basescore: 4.2
-tactic: [tba]
-technique: [tba]
-reference:
-  - https://www.avasero.com/
