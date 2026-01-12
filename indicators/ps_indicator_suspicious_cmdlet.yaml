@@ -1,9 +1,0 @@
-name: Suspicious cmdlet
-description: Highlights strings potentially linked to suspicious PS cmdlets. It was initially inspired on a Sigma rule (refer to references).
-regex: Check-VM|Find-Fruit|Find-GPOLocation|Find-TrustedDocuments|Get-ApplicationHost|Get-IndexedItem|Get-RegAlwaysInstallElevated|Get-RegAutoLogon|Get-RickAstley|Get-SecurityPackages|Get-ServiceFilePermission|Get-ServicePermission|Get-ServiceUnquoted|Get-SiteListPassword|Get-System|Get-UnattendedInstallFile|Get-Unconstrained|Get-VaultCredential|HTTP-Login|Install-SSP|Invoke-AllChecks|Invoke-DCSync|Invoke-EgressCheck|Invoke-Inveigh|Invoke-InveighRelay|Invoke-PoshRat|Invoke-PostExfil|Invoke-PowerShellTCP|Invoke-PsExec|Invoke-ReverseDNSLookup|Invoke-RunAs|Invoke-SSHCommand|Invoke-Service|Invoke-Tater|Invoke-Token|MailRaider|PowerView|Remove-Update|Set-MacAttribute|Show-TargetScreen|(Computer|User)Property|CachedRDPConnection|invoke-\S+hunter|remoteps|Kerberos.*(policy|ticket)|Uninstall-Windows|Invoke-Interceptor|EXEonRemote|NetworkRelay|PowerShelludp|PowerShellIcmp|CreateShortcut|copy-vss|out-shortcut|Invoke-ShellCommand|SocksProxy|WdigestDowngrade|ProcessScan|-autoruns|LoginPrompt|-(ADDomain|ADComputer|MachineAccount)|-gppp|Resolve-DnsName|TokenManipulation|Invoke-PSImage
-maxmatch: 1
-basescore: 8.8
-tactic: TA0002
-technique: T1059.001
-reference:
-  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_powershell_malicious_cmdlets.yml
