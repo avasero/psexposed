@@ -1,0 +1,9 @@
+name: Advanced DLL handling
+description: Matches on potential commands attempting to import unmanaged DLLs or load DLL files directly into memory.
+regex: \bDllImport|DllInjection|ReadAllBytes[\s\S]+\S\.dll
+basescore: 9.2
+tactic: [TA0005]
+technique: [T1059.001, T1055]
+reference:
+  - https://redcanary.com/blog/threat-detection/better-know-a-data-source/amsi/
+  - https://unit42.paloaltonetworks.com/unit42-pulling-back-the-curtains-on-encodedcommand-powershell-attacks/

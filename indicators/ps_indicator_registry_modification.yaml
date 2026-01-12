@@ -1,0 +1,12 @@
+name: Windows registry modification
+description: Detects PowerShell usage that creates or modifies Windows Registry keys or values via New-Item or Set-Item targeting registry provider paths (HKCU/HKLM/HKCR/HKU/HKCC), a common technique used for persistence, configuration tampering, or security control manipulation.
+regex: (New|set)-Item.+[-]path.+hk\S*:|\.RegWrite\s
+basescore: 5
+tactic: [TA0005, TA0003]
+technique: [T1112, T1547]
+reference:
+  - https://attack.mitre.org/techniques/T1112/
+  - https://attack.mitre.org/techniques/T1547/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/powershell/powershell_script/posh_ps_registry_modification.yml
+  - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1112/T1112.md
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/powershell/powershell_script/posh_ps_vbscript_registry_modification.yml

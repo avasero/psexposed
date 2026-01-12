@@ -1,0 +1,19 @@
+name: Notable Computer or Machine account manipulation
+description: >
+  Detects PowerShell activity associated with the creation or manipulation of
+  computer (machine) accounts in Active Directory, including explicit setting
+  of SamAccountName or use of alternate credentials. This behavior is commonly
+  observed in lateral movement, persistence, and privilege escalation scenarios,
+  including abuse of machine account quota and rogue computer account creation.
+regex: new-adcomputer.+SamAccountName|add-computer.+credential
+basescore: 10
+tactic: [TA0003, TA0005, TA0008]
+technique: [T1136.002, T1098, T1021.002]
+reference:
+  # MITRE ATT&CK
+  - https://attack.mitre.org/techniques/T1136/002/
+  - https://attack.mitre.org/techniques/T1098/
+  - https://attack.mitre.org/techniques/T1021/002/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/builtin/security/win_security_add_remove_computer.yml
+  - https://www.atomicredteam.io/atomic-red-team/atomics/T1136.002
+  - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1136.002/T1136.002.md

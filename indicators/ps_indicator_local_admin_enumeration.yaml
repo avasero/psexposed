@@ -1,0 +1,9 @@
+name: Local admin enumeration
+description: Potential commands aimed at enumerating members of the local administrators group.
+regex: EnumerateLocalAdmin|(Win32_Group|get-LocalGroupMember|get-ADGroupMember|net\s+localgroup).+administrators|Administrators\S+\.members\(
+basescore: 8.8
+tactic: [TA0007, TA0004]
+technique: [T1059.001, T1069.001, T1087, T1068]
+reference:
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/powershell/powershell_module/posh_pm_susp_local_group_reco.yml
+  - https://www.reddit.com/r/PowerShell/comments/1b37wte/enumerating_localgroup_members/

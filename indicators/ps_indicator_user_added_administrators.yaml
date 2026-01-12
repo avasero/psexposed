@@ -1,0 +1,10 @@
+name: User added to administrators group
+description: Detects PowerShell or command-line activity that adds an account to the local Administrators group, a high-impact privilege escalation and persistence action often used during post-exploitation.
+regex: Add-LocalGroupMember.+administrators|net\s+localgroup\s+Administrators.+/add
+basescore: 8.4
+tactic: [TA0003, TA0004]
+technique: [T1098]
+reference:
+  - https://attack.mitre.org/techniques/T1098/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_susp_add_user_local_admin_group.yml
+  - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1098/T1098.md
