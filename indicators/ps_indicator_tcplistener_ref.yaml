@@ -1,0 +1,8 @@
+name: TcpListener reference
+description: Uses .NET TcpListener, commonly seen in PowerShell tunneling or bind shell patterns.
+regex: tcplistener
+basescore: 10
+tactic: TA0011
+technique: [T1059.001, T1090]
+reference:
+  - https://www.sans.org/blog/threat-hunting-with-powershell-differential-analysis

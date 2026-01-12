@@ -1,0 +1,12 @@
+name: System.Reflection.Assembly reference
+description: Detects usage of System.Reflection.Assembly, a .NET component that enables dynamic assembly loading and execution, which may indicate in-memory or fileless execution techniques.
+regex: \b(?:System\.Reflection(?:\.Assembly)?|Reflection\.Assembly)\b
+basescore: 10
+tactic: [TA0002, TA0005]
+technique: [T1059.001, T1027, T1620]
+reference:
+  - https://red.infiltr8.io/redteam/weapon/code-and-process-injection/.net-reflective-assembly
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_powershell_base64_reflection_assembly_load.yml
+  - https://www.elastic.co/security-labs/hunting-memory-net-attacks
+  - https://redcanary.com/blog/testing-and-validation/gootloader-emulation/
+  - https://learn.microsoft.com/en-us/dotnet/api/system.reflection.assembly.load
