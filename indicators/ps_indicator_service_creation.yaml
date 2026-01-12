@@ -1,0 +1,9 @@
+name: Service creation
+description: Spots potential service creation via New-Service PS cmdlet and sc.exe.
+regex: \bnew-service\s|\bsc(.exe)*\s+create\s
+basescore: 7.6
+tactic: [TA0003, TA0004]
+technique: [T1543.003, T1059.001]
+reference:
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_susp_service_creation.yml
+  - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1543.003/T1543.003.md

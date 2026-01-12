@@ -1,0 +1,9 @@
+name: Firewall rule creation
+description: Creation of Windows Firewall rules or filters via NetSecurity cmdlets.
+regex: new-netfirewall[\s\S]+(filter|rule)
+basescore: 8.7
+tactic: TA0005
+technique: [T1562.004, T1059.001]
+reference:
+  - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1562.004/T1562.004.md
+  - https://learn.microsoft.com/en-us/powershell/module/netsecurity/new-netfirewallrule

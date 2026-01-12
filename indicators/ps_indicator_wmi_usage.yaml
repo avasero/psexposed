@@ -1,0 +1,8 @@
+name: WMI usage
+description: Detects general WMI usage by matching against common WMI code references.
+regex: WmiCommand|wmiclass|PowerShellWMI|wmiobject|WMIMethod|RemoteWMI|Win32_Process|(iwmi|gwmi)\s+
+basescore: 5
+tactic: [TA0002]
+technique: [T1047]
+reference:
+  - https://attack.mitre.org/techniques/T1047/

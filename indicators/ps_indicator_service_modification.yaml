@@ -1,0 +1,8 @@
+name: Service modification
+description: Spots potential service modification via Sew-Service PS cmdlet.
+regex: \bset-service
+basescore: 6.2
+tactic: [TA0003, TA0004]
+technique: [T1543.003, T1059.001]
+reference:
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_susp_service_creation.yml

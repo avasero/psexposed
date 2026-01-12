@@ -1,0 +1,15 @@
+name: Critical Windows registry path reference
+description: Detects references to critical Windows registry paths associated with services, authentication, persistence, session control, credential storage & more. Make sure you filter out overly noisy processes before consuming this one.
+regex: SYSTEM[\\]+CurrentControlSet[\\]+Services|SAM[\\]+SAM[\\]+Domains[\\]+Account|CurrentControlSet[\\]+Control[\\]+Session Manager[\\]+KnownDLLs|Windows[\\]+CurrentVersion[\\]+(RunServices|Explorer[\\]+RunMRU)|Terminal Server Client[\\]+Servers|CurrentVersion[\\]+Internet\s+|Control[\\]+Lsa[\\]+
+basescore: 8.2
+tactic: [TA0005, TA0003, TA0006]
+technique: [T1059.001, T1003, T1547, T1543, T1112]
+reference:
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/registry/registry_sam_hive_access.yml
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/registry/registry_lsa_secrets_access.yml
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/registry/registry_service_installation.yml
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/registry/registry_known_dlls_modification.yml
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/registry/registry_run_keys.yml
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/registry/registry_runonce_keys.yml
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/registry/registry_rdp_server_history.yml
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/registry/registry_internet_settings_modification.yml
