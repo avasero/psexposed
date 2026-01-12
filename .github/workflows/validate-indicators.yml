@@ -142,6 +142,166 @@ jobs:
           
           [ $ERRORS -gt 0 ] && echo "FAILED" && exit 1
           echo "All fields present"
+  step-3-5-duplicate-check:
+    name: "Step 3.5: Duplicate Detection"
+    needs: [step-1-detect-changes, step-3-required-fields]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for duplicates
+        env:
+          UPSERT_FILES: ${{ needs.step-1-detect-changes.outputs.upsert-files }}
+          SUPABASE_EDGE_URL: ${{ secrets.SUPABASE_EDGE_URL }}
+          SUPABASE_EDGE_SECRET: ${{ secrets.SUPABASE_EDGE_SECRET }}
+        run: |
+          echo "=== STEP 3.5: DUPLICATE DETECTION ==="
+          ERRORS=0
+          
+          # Create Python script for duplicate checking
+          cat > /tmp/check_duplicates.py << 'PYSCRIPT'
+          import os
+          import sys
+          import json
+          import re
+          import urllib.request
+          import urllib.error
+          
+          def get_indicator_name(filepath):
+              """Extract indicator name from YAML file."""
+              try:
+                  with open(filepath, 'r', encoding='utf-8') as f:
+                      for line in f:
+                          if line.startswith('name:'):
+                              return line[5:].strip().strip('"').strip("'")
+              except:
+                  pass
+              return None
+          
+          def get_all_repo_indicators(exclude_files):
+              """Get all indicator names and file paths from the repository."""
+              indicators = []
+              indicators_dir = 'indicators'
+              if os.path.exists(indicators_dir):
+                  for fname in os.listdir(indicators_dir):
+                      if fname.endswith(('.yaml', '.yml')):
+                          fpath = os.path.join(indicators_dir, fname)
+                          if fpath not in exclude_files:
+                              name = get_indicator_name(fpath)
+                              if name:
+                                  indicators.append({'name': name.lower(), 'file': fpath, 'original_name': name})
+              return indicators
+          
+          def check_db_duplicates(names_to_check, file_paths, edge_url, edge_secret):
+              """Check if indicator names exist in Supabase database."""
+              if not edge_url or not edge_secret:
+                  print("  Skipping DB check (no credentials)")
+                  return []
+              
+              duplicates = []
+              
+              # Build the endpoint URL
+              if '/functions/v1' in edge_url:
+                  url = f"{edge_url}/check-for-duplicates-on-pbDB"
+              else:
+                  url = f"{edge_url}/functions/v1/check-for-duplicates-on-pbDB"
+              
+              try:
+                  payload = json.dumps({
+                      'names': list(names_to_check),
+                      'file_paths': list(file_paths)
+                  }).encode('utf-8')
+                  
+                  req = urllib.request.Request(url, data=payload, method='POST')
+                  req.add_header('Content-Type', 'application/json')
+                  req.add_header('Authorization', f'Bearer {edge_secret}')
+                  
+                  with urllib.request.urlopen(req, timeout=30) as response:
+                      result = json.loads(response.read().decode('utf-8'))
+                      if result.get('duplicates'):
+                          duplicates = result['duplicates']
+              except urllib.error.HTTPError as e:
+                  if e.code == 404:
+                      print("  DB check endpoint not found (skipping)")
+                  else:
+                      print(f"  DB check error: {e.code}")
+              except Exception as e:
+                  print(f"  DB check skipped: {e}")
+              
+              return duplicates
+          
+          def main():
+              upsert_files = json.loads(os.environ.get('UPSERT_FILES', '[]'))
+              edge_url = os.environ.get('SUPABASE_EDGE_URL', '')
+              edge_secret = os.environ.get('SUPABASE_EDGE_SECRET', '')
+              
+              if not upsert_files:
+                  print("No files to check")
+                  sys.exit(0)
+              
+              errors = 0
+              
+              # Get existing indicators in repo (excluding changed files)
+              repo_indicators = get_all_repo_indicators(set(upsert_files))
+              repo_names = {ind['name']: ind for ind in repo_indicators}
+              
+              # Check each file being added/modified
+              names_to_check = set()
+              file_paths = set()
+              
+              for fpath in upsert_files:
+                  if not os.path.exists(fpath):
+                      continue
+                  
+                  fname = os.path.basename(fpath)
+                  print(f"Checking: {fpath}")
+                  
+                  # 1. Check for duplicate file names in repo
+                  for other in repo_indicators:
+                      if os.path.basename(other['file']) == fname:
+                          print(f"  ERROR: Duplicate file name '{fname}' exists at {other['file']}")
+                          errors += 1
+                  
+                  # 2. Check for duplicate indicator names in repo
+                  ind_name = get_indicator_name(fpath)
+                  if ind_name:
+                      ind_name_lower = ind_name.lower()
+                      names_to_check.add(ind_name_lower)
+                      file_paths.add(fpath)
+                      
+                      if ind_name_lower in repo_names:
+                          existing = repo_names[ind_name_lower]
+                          print(f"  ERROR: Indicator name '{ind_name}' already exists in {existing['file']}")
+                          errors += 1
+                      else:
+                          print(f"  Repo check OK for: {ind_name}")
+              
+              # 3. Check for duplicates in database
+              if names_to_check:
+                  print("\nChecking database for duplicates...")
+                  db_dupes = check_db_duplicates(names_to_check, file_paths, edge_url, edge_secret)
+                  for dupe in db_dupes:
+                      print(f"  ERROR: Indicator name '{dupe['name']}' already exists in database (file: {dupe.get('file_path', 'unknown')})")
+                      errors += 1
+                  if not db_dupes:
+                      print("  Database check OK")
+              
+              if errors > 0:
+                  print(f"\nFAILED: {errors} duplicate(s) found")
+                  sys.exit(1)
+              
+              print("\nNo duplicates found")
+              sys.exit(0)
+          
+          if __name__ == '__main__':
+              main()
+          PYSCRIPT
+          
+          python3 /tmp/check_duplicates.py || ERRORS=$((ERRORS + 1))
+          
+          [ $ERRORS -gt 0 ] && exit 1
+          echo "Duplicate check passed"
 
   step-4-data-types:
     name: "Step 4: Data Types"
