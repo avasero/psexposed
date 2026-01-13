@@ -5,4 +5,5 @@ basescore: 5.7
 tactic: [TA0011]
 technique: [T1071.003]
 reference:
+  - https://www.group-ib.com/blog/dark-pink-apt/
   - https://attack.mitre.org/techniques/T1071/003/
