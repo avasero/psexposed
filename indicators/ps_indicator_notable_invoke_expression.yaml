@@ -1,6 +1,6 @@
 name: Notable Invoke-Expression
 description: Detects PowerShell code patterns commonly associated with dynamic command execution and basic obfuscation of Invoke-Expression (iex). This might match on legitimate cases. So consider fine-tuning the score/regex to your needs.
-regex: \b(iex|Invoke[-]Expression)\s+2>&1|\biex\(|\.\s*'*iex'*|\biex\s*\(\s*irm\b|iex\s*\(\s*&\s*\(
+regex: \b(iex|Invoke[-]Expression)\s+2>&1|\biex\s*\(|\.\s*'*iex'*|\biex\s*\(\s*irm\b|iex\s*\(\s*&\s*\(
 basescore: 10
 tactic: [TA0005]
 technique: [T1059.001, T1027]
