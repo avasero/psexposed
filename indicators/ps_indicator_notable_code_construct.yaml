@@ -4,7 +4,7 @@ description: >
   wildcard-based command discovery (Get-Alias/Get-Command), and indirect invocation techniques used to execute dynamically constructed code.
 
   This might match on legitimate cases. So consider fine-tuning the score/regex to your needs. This regex will be later broke down into multiple smaller pieces focused on obfuscation techniques.
-regex: \b(gal|gcm)\s+\*|\(\s*gi\s+[\\\]+W*|\$[0-9a-z_\[\]]+\s+(-b(x*or|and|not)|-sh[lr])\s+[\$0-9a-z_]{2,}|CreateObject\(.*Wscript.Shell.*\)\.Run
+regex: \b(gal|gcm)\s+\*|\(\s*gi\s+[\\]+W*|\$[0-9a-z_\[\]]+\s+(-b(x*or|and|not)|-sh[lr])\s+[\$0-9a-z_]{2,}|CreateObject\(.*Wscript.Shell.*\)\.Run
 basescore: 10
 tactic: [TA0005]
 technique: [T1059.001, T1027]
