@@ -1,0 +1,10 @@
+name: Potential tampering with ETW
+description: Detects PowerShell attempts to disable or neuter ETW providers by modifying trace provider settings (e.g., disabling, setting level to 0, or zeroing keywords), which is commonly used for logging/telemetry evasion.
+regex: Set-EtwTraceProvider.+(Enabled:.+false|level\s+0|MatchAnyKeyword\s+0|0x11)
+basescore: 10
+tactic: [TA0005]
+technique: [T1562.006]
+reference:
+  - https://attack.mitre.org/techniques/T1562/006/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/powershell/powershell_script/posh_ps_etw_trace_evasion.yml
+  - https://www.atomicredteam.io/atomic-red-team/atomics/T1562.006

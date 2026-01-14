@@ -1,0 +1,11 @@
+name: Notable data manipulation
+description: Detects PowerShell string and byte-level transformation techniques commonly used to dynamically reconstruct or modify data at runtime, including character casting, numeric conversion, slicing, joining, XOR operations, and regex-based extraction—patterns frequently associated with obfuscation, staged payload assembly, and evasion.
+regex: (convert|byte|length|xor|substring|join|toint|tostr).*\[char|\[char.*(convert|byte|length|xor|substring|join|toint|tostr)|regex.+::match|writeAllBytes|::ToString|System.Convert\S+ToString|Convert\.ToString|InvokeMember\S+ToString
+basescore: 8
+tactic: [TA0005]
+technique: [T1027, T1140]
+reference:
+  - https://archive.nullcon.net/website/archives/pdf/goa-2017/invoke-obfuscation-nullcon-2017.pdf
+  - https://attack.mitre.org/techniques/T1027/
+  - https://attack.mitre.org/techniques/T1140/
+  - https://www.knowyouradversary.ru/2025/08/239-thats-how-adversaries-abuse.html

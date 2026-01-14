@@ -1,0 +1,17 @@
+name: Notable Invoke-Expression
+description: Detects PowerShell code patterns commonly associated with dynamic command execution and basic obfuscation of Invoke-Expression (iex). This might match on legitimate cases. So consider fine-tuning the score/regex to your needs.
+regex: \b(iex|Invoke[-]Expression)\s+2>&1|\biex\s*\(|\.\s*'*iex'*|\biex\s*\(\s*irm\b|iex\s*\(\s*&\s*\(
+basescore: 10
+tactic: [TA0005]
+technique: [T1059.001, T1027]
+reference:
+  - https://attack.mitre.org/techniques/T1059/001/
+  - https://attack.mitre.org/techniques/T1027/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/powershell/powershell_script/posh_ps_invoke_expression.yml
+  - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1059.001/T1059.001.md
+  - https://bazaar.abuse.ch/sample/7f92ce6ddf632dd49b6052f77857bd03e7e00f89965d9d6648c60773847ba6df/
+  - https://bazaar.abuse.ch/sample/785d8f70dea1a2cac7b63c00583c3f9fe6faa298a304eb2104a9cc0a73ce2e74/
+  - https://clickfix.carsonww.com/domains/aaa-fxinvest.com
+  - https://clickfix.carsonww.com/domains/javsenpaiii.pages.dev
+  - https://clickfix.carsonww.com/domains/www.fitnesslife24.ch
+  - https://clickfix.carsonww.com/domains/whm.umeedshiksharath.org

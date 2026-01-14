@@ -1,0 +1,9 @@
+name: AD high privilege group enumeration
+description: Enumerates enterprise admins or domain admins group membership.
+regex: get-adgroupmember.+(enterprise|domain) admins
+basescore: 10
+tactic: TA0007
+technique: [T1059.001, T1069.002]
+reference:
+  - https://lolad-project.github.io/
+  - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1069.002/T1069.002.md

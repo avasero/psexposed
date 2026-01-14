@@ -1,0 +1,17 @@
+name: Suspicious TLD reference
+description: >
+  Detects URLs referencing high-risk or abuse-prone top-level domains and
+  dynamic DNS providers commonly used by malware, phishing, and C2 infrastructure.
+  These domains are frequently leveraged due to low cost, anonymity, and fast
+  rotation, making them attractive for command-and-control, payload hosting,
+  and phishing campaigns.
+regex: https*://\S+\.(ddns|dyndns|ml|ga|cf|cc|tk|top|xyz|biz|dynu|dnsdynamic|changeip|servebeer|noip\.me|no-ip\.biz|no-ip\.org|zapto\.org|no-ip\.info|duckdns\.org|hopto\.org|sytes\.net)
+basescore: 10
+tactic: [TA0011, TA0001]
+technique: [T1071.001, T1568.003]
+reference:
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/web/proxy_generic/proxy_download_susp_tlds_blacklist.yml
+  - https://attack.mitre.org/techniques/T1071/001/
+  - https://attack.mitre.org/techniques/T1568/003/
+  - https://www.atomicredteam.io/atomic-red-team/atomics/T1071.001
+  - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1071.001/T1071.001.md

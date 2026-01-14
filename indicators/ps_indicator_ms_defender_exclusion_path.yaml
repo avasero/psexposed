@@ -1,0 +1,12 @@
+name: MS Defender exclusion path modification
+description: Detects attempts to add or modify Microsoft Defender exclusion paths.
+regex: (add|set)-MpPreference[\s\S]+ExclusionPath
+basescore: 9.4
+tactic: TA0005
+technique: [T1562.001, T1059.001]
+reference:
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/powershell/powershell_script/posh_ps_win_defender_exclusions_added.yml
+  - https://research.splunk.com/endpoint/c148a894-dd93-11eb-bf2a-acde48001122/
+  - https://www.elastic.co/guide/en/security/current/windows-defender-exclusions-added-via-powershell.html
+  - https://www.huntress.com/blog/you-can-run-but-you-cant-hide-defender-exclusions
+  - https://learn.microsoft.com/en-us/powershell/module/defender/add-mppreference

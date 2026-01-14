@@ -1,0 +1,8 @@
+name: Notable subdirectory reference
+description: Highlights potential reference to a notable subdirectory
+regex: APPDATA%*[\\]+.*(Roaming|Temp)|%(public|programdata)%[\\]+|Windows[\\]+Temp[\\]+|Recycle\.Bin|Users[\\]+Public|[\\]+programdata|(Google[\\]+Chrome|Microsoft[\\]+Edge)[\\]+User Data[\\]+.+[\\]+(Cache|Cache_Data|GPUCache|Code Cache)|Mozilla[\\]+Firefox[\\]+Profiles.+[\\]+cache|Microsoft[\\]+Windows[\\]+(INetCache|Temporary Internet Files)
+basescore: 6.8
+tactic: TA0002
+technique: [T1059.001, T1204]
+reference:
+  - https://infosecwriteups.com/threat-hunting-series-the-threat-hunting-process-f76583f2475b

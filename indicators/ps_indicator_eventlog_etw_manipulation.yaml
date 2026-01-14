@@ -1,0 +1,9 @@
+name: Eventlog/ETW manipulation
+description: Detects interaction with Windows Event Logs or ETW tracing, including access to .evtx files or use of logging/tracing controls, which may indicate log tampering, monitoring evasion or other interesting activity.
+regex: eventlog|\.evtx|EventLog-App|-etwtrace|-eventlog
+basescore: 6
+tactic: [TA0005]
+technique: [T1070.001]
+reference:
+  - https://attack.mitre.org/techniques/T1070/001/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_susp_eventlog_clear.yml
