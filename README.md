@@ -2,72 +2,65 @@
 
 **Community-driven PowerShell Detection Indicators**
 
-This project is a collaborative collection of pattern-based, **detection indicators** for spotting potential suspicious PowerShell (PS) commands, 'one-liners'.
+This project is a collaborative collection of pattern-based **detection indicators** designed to identify potentially suspicious PowerShell (PS) payloads. Its purpose is not only to surface notable indicators within full scripts, but also to analyze PowerShell **one-liners**, those small commands often containing encoded content, obfuscation, staging logic, or execution intent.
 
-Each indicator comprises of a regular expression (regex) mapped to **MITRE ATT&CK** framework, helping cybersecurity teams flag and detect potential threats leveraging PowerShell. Ultimately, the idea is to use those as input for detection models, not be be used as atomic alerts.
+Each indicator comprises of a regular expression (regex) mapped to **MITRE ATT&CK** framework, helping cybersecurity teams flag and detect potential threats leveraging PowerShell. Ultimately, the idea is to use those as input for **detection models**, not be be used as atomic alerts.
 
 The [project website](https://ps.exposed) also provides a web application + API for systematically evaluating PS payloads.
 
 ###  Indicator Definition (Format)
 
-Each indicator should follow this YAML format:
+Each indicator must follow the following YAML format:
 
 ```yaml
 name: Indicator Name
-description: Detailed description of what the indicator detects
-regex: regular_expression_here
+description: Brief description of what the indicator detects
+regex: regular_expression_here (PCRE)
 basescore: 1.0-10.0
-max_match: 1
-tactic: MITRE_Tactic
+max_match: 1-5
+tactic: TXXXXX
 technique: TXXXX.XXX
 reference:
-  - https://example.com/reference
+  - URL
 ```
 
 ####  Parameters Breakdown
 
-In your Pull Request, include:
 - **Name:** What the indicator spots?
 - **Description:** Why it's important (brief)?
 - **Reference:** What has driven or inspired you?
 - **Max Match:** See below
 - **Base Score:** See below
 
-#### Max Matches: Controlling how many regex groups are considered
+#### Max Matches: Controlling how many maximum regex groups make into the results
 
-Some indicators regex might contain multiple patterns in its definition, usually separated by the pipe character ("|"). For instance:
+Some indicators regex might contain multiple patterns, usually separated by the pipe character ("|"). For instance:
 
 ```yaml
-# Snippet from an simple multi-match indicator
-name: Invoke-Expression Cmdlet
-regex: Invoke-Expression|\biex\b
-max_match: 1
+name: WMI usage
+description: Detects general WMI usage by matching against common WMI code references.
+regex: WmiCommand|wmiclass|PowerShellWMI|wmiobject|WMIMethod|RemoteWMI|Win32_Process|(iwmi|gwmi)\s+
+basescore: 5
+tactic: [TA0002]
+technique: [T1047]
+reference:
+  - https://attack.mitre.org/techniques/T1047/
 ```
 
-In that case, within the results, only 1 match will be considered and that affects what's displayed as 'matches' in the results, as well as model scoring (in case you do). The value of '1' is the **default**, which applies to the vast majority of indicators.
+In that case, only **one** match displayed in the results, even if the payload matches multiple patterns present in the regex. That's because there's an implied maxmatch = 1. That's the **default**, which applies to the vast majority of indicators.
 
-In case an indicator comprises of multiple patterns such as the one below, setting max_match>1 will not only display multiple 'matches' but can also influence in how your detection model deals with multiple matches given the indicator base score. 
+Now, in case an indicator comprises of multiple patterns such as the one below, setting max_match>1 will not only display multiple 'matches' but can also influence in how your detection model deals with multiple matches given the indicator base score. 
 
 ```yaml
-# Snippet from a larger multi-match indicator
 name: Highly suspicious keywords
-regex: bitstransfer|mimik|metasp|psrecon|-persistence|AssemblyBuilderAccess|Reflection\.Assembly|shellcode|injection|BypassUAC|UACBypass|Rc4ByteStream|\blsass|LastLoggedOn|hijack|BackupPrivilege|comsvcs|backdoor|brute.?force
-max_match: 3
-```
-
-#### Example
-
-```yaml
-# Example indicator
-name: Invoke-Expression Cmdlet
-description: Spots potential use of Invoke-Expression cmdlet and its alias.
-regex: Invoke-Expression|\biex\b
-basescore: 5.0
-max_match: 1 #maximum number of times an indicator can be triggered
-tactic: Execution
+description: Detects the presence of multiple high-risk PowerShell keywords and behavioral primitives commonly associated with post-exploitation, credential access, lateral movement, defense evasion, and payload staging.
+regex: (start|complete)-bitstransfer|psrecon|-persistence|Reflection\.Assembly|spraying|shellcode|injection|BypassUAC|UACBypass|Rc4ByteStream|System\.Security\.Cryptography||DumpCreds|-decrypt # Truncated
+maxmatch: 2
+basescore: 8.2
+tactic: TA0002
 technique: T1059.001
 reference:
-  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_susp_web_request_cmd_and_cmdlets.yml
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_powershell_malicious_cmdlets.yml
 ```
 
 #### **Base Scoring**: The initial score for each individual indicator 
@@ -84,7 +77,7 @@ The "base" score helps determine the initial relevance of each indicator within 
 | 8-9   | 🟠 High      | Orange | Highly suspicious activity |
 | 10  | 🔴 Critical  | Red | Extremely suspicious activity |
 
-Aside from _Critical_ indicators, no single indicator should be considered **alertable** on its own! ⚠️
+Aside from _Critical_ and some _High_ indicators, no single indicator should be considered **alertable** on its own! ⚠️
 
 That said, it’s strongly recommended to use indicators as part of a broader detection model.
 
