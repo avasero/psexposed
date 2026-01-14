@@ -1,0 +1,10 @@
+name: Notable ENV variable reference
+description: Detects PowerShell references to environment variables commonly used for staging paths, execution control, proxy awareness, or domain context, which are frequently leveraged in malicious scripts for portability and evasion.
+regex: env:(APPDATA|programdata|LOCALAPPDATA|public|comspec|systemdrive|PSExecutionPolicyPreference|HTTPS*_PROXY|NO_PROXY|.*PSLockdownPolicy|USERDNSDOMAIN)
+basescore: 7.6
+tactic: [TA0005, TA0007]
+technique: [T1027, T1082]
+reference:
+  - https://attack.mitre.org/techniques/T1027/
+  - https://attack.mitre.org/techniques/T1082/
+  - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1082/T1082.md

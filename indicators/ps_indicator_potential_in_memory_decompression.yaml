@@ -1,0 +1,12 @@
+name: Potential in-memory data decompression
+description: Detects PowerShell references to in-memory decompression primitives (e.g., Decompress, DeflateStream), which are commonly used to unpack compressed payloads, configuration data, or second-stage code at runtime to evade static inspection.
+regex: ::Decompress|DeflateStreamIO
+basescore: 10
+tactic: [TA0005]
+technique: [T1027, T1140]
+reference:
+  - https://attack.mitre.org/techniques/T1027/
+  - https://attack.mitre.org/techniques/T1140/
+  - https://blackhat.com/docs/us-14/materials/us-14-Kazanciyan-Investigating-Powershell-Attacks.pdf
+  - https://fareedfauzi.github.io/2021/02/06/LemonDuck-Powershell.html
+  - https://www.elastic.co/guide/en/security/8.19/powershell-suspicious-payload-encoded-and-compressed.html

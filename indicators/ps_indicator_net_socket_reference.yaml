@@ -1,0 +1,10 @@
+name: Net.Socket reference
+description: Detects explicit PowerShell usage of low-level .NET socket classes, which enables custom network communication outside standard application-layer protocols and is frequently used for bespoke C2 channels, tunneling, or covert data transfer.
+regex: Net\.Socket
+basescore: 10
+tactic: [TA0011]
+technique: [T1095]
+reference:
+  - https://somedieyoungzz.github.io/posts/kimsucky-2/
+  - https://attack.mitre.org/techniques/T1095/
+  - https://www.atomicredteam.io/atomic-red-team/atomics/T1095

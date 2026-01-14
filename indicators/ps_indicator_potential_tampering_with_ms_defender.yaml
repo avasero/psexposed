@@ -1,0 +1,8 @@
+name: Potential tampering with MS Defender
+description: Spots potential attempts to tamper with MS Defender.
+regex: Set-MpPreference.+Disable(RealtimeMonitoring|BehaviorMonitoring|IOAVProtection|ScriptScanning|IntrusionPreventionSystem|AntiSpyware)|Set-MpPreference.+(EnableControlledFolderAccess\s+disabled|MAPSReporting\s+0|SubmitSamplesConsent\s+2)|MpCmdRun.+-RemoveDefinitions
+basescore: 10
+tactic: TA0005
+technique: [T1562.001, T1059.001]
+reference:
+  - https://github.com/mdecrevoisier/SIGMA-detection-rules/blob/main/windows-defender/defender-critical%20security%20components%20disabled%20(PowerShell).yaml

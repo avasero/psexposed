@@ -1,0 +1,10 @@
+name: Active Directory enumeration activity
+description: Detects PowerShell usage of System.DirectoryServices and adsisearcher, which may indicate Active Directory enumeration via LDAP.
+regex: DirectoryServices\.|LdapConnection|adsiSearcher
+basescore: 9.4
+tactic: [TA0007]
+technique: [T1059.001, T1087, T1069, T1018]
+reference:
+  - https://unlockpowershell.wordpress.com/2010/07/01/powershell-search-ad-for-a-guid/
+  - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1069.002/T1069.002.md
+  - https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/using-dsacls-to-check-ad-object-permissions

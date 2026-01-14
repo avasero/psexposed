@@ -1,0 +1,10 @@
+name: Service manipulation
+description: Spots potential activity around Windows services (cmdlet or registry-based). Initially inspired on Sigma rulset.
+regex: \b(start|stop|get)-Service|SYSTEM[\\]+CurrentControlSet[\\]+Services
+basescore: 4.2
+tactic: [TA0003, TA0004, TA0005]
+technique: [T1543.003, T1059.001, T1569.002, T1489]
+reference:
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_powershell_stop_service.yml
+  - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1489/T1489.md
+  - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1543.003/T1543.003.md

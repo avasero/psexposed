@@ -1,0 +1,8 @@
+name: Notable PS console behavior
+description: Detects PowerShell usage that explicitly manipulates console foreground and background colors, a pattern often seen in interactive tooling, social-engineering scripts and PS attack frameworks.
+regex: (?=.*ForegroundColor)(?=.*BackgroundColor)
+basescore: 7.2
+tactic: [TA0005]
+technique: [T1059.001]
+reference:
+  - https://attack.mitre.org/techniques/T1059/001/

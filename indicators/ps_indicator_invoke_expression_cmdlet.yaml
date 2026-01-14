@@ -1,0 +1,8 @@
+name: Invoke-Expression cmdlet
+description: Spots potential use of Invoke-Expression cmdlet and its alias.
+regex: Invoke-Expression|\biex\b
+basescore: 5.0
+tactic: TA0002
+technique: T1059.001
+reference:
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_susp_web_request_cmd_and_cmdlets.yml

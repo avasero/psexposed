@@ -1,0 +1,13 @@
+name: Virtual disk activity
+description: Detects PowerShell patterns consistent with mounting/handling virtual disk images (VHD/ISO via DiskImage-related switches) and creating mapped drives via New-PSDrive, which can be abused to stage/execute payloads from mounted containers (including MotW bypass tradecraft) or to interact with remote shares.
+regex: -(vhd|DiskImage)\s|New-PSDrive
+basescore: 5
+tactic: [TA0005, TA0008]
+technique: [T1553.005, T1021.002]
+reference:
+  - https://attack.mitre.org/techniques/T1553/005/
+  - https://attack.mitre.org/techniques/T1021/002/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/powershell/powershell_script/posh_ps_run_from_mount_diskimage.yml
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/powershell/powershell_script/posh_ps_susp_new_psdrive.yml
+  - https://www.atomicredteam.io/atomic-red-team/atomics/T1553.005
+  - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1021.002/T1021.002.md

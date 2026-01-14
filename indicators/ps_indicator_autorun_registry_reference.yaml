@@ -1,0 +1,10 @@
+name: Autorun registry path reference
+description: Detects references to autorun registry related paths, which are commonly abused to achieve persistence by executing programs automatically at user logon.
+regex: Windows[\\]+CurrentVersion[\\]+Run|Policies[\\]+Explorer[\\]+Run
+basescore: 8.5
+tactic: [TA0003]
+technique: [T1547.001]
+reference:
+  - https://attack.mitre.org/techniques/T1547/001/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/registry/registry_set/registry_set_powershell_in_run_keys.yml
+  - https://www.atomicredteam.io/atomic-red-team/atomics/T1547.001
