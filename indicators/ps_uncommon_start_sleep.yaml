@@ -1,6 +1,6 @@
 name: Uncommon Start-Sleep time
 description: Detects unusually long PowerShell sleep intervals specified via Start-Sleep with large numeric values, a common sandbox- and analysis-evasion technique used to delay execution until security tooling times out.
-regex: start-sleep\b(?:\s+-s(?:econds)?\s+\d{3,}|\s+-m(?:inutes)?\s+[3-9]\d*|\s+\d{3,})
+regex: start-sleep\b(?:\s+-s(?:econds)?\s+(?:6\d{2,}|[7-9]\d{2,}|\d{4,})|\s+-m(?:inutes)?\s+(?:1\d+|[2-9]\d*)|\s+(?:6\d{2,}|[7-9]\d{2,}|\d{4,}))
 basescore: 10
 tactic: [TA0005]
 technique: [T1497.003]
