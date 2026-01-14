@@ -45,7 +45,7 @@ assignees: ''
 - 
 
 ## ✅ Checklist
-- [ ] I have tested this regex pattern
-- [ ] I have checked for false positives
-- [ ] I have provided examples
-- [ ] I have verified MITRE ATT&CK mappings
+- [ ] I have tested this regex pattern and it is PCRE compliant.
+- [ ] I have set the score according to behavior severity and potential match volume (prevalence).
+- [ ] I have provided PowerShell payload examples to validate and provided URL references.
+- [ ] I have added all MITRE ATT&CK tactics and techniques matching the indicator.
