@@ -1,6 +1,6 @@
 name: Proxy configuration manipulation
-description: Detects PowerShell activity that creates, modifies, or references proxy configuration mechanisms (e.g., WebProxy objects, explicit proxy parameters, SOCKS proxies, or proxy-related registry/value changes), which are commonly used to reroute traffic, bypass network controls, or blend malicious communications into proxied environments.
-regex: WebProxy\(|\S+\.proxy\s*=|\s+[-]proxy\s+|\bproxy(enable|server).*value|SocksProxy
+description: Detects PowerShell activity that creates, modifies, or references proxy configuration mechanisms (e.g., WebProxy objects, SOCKS proxies, or proxy-related registry/value changes), which are commonly used to reroute traffic, bypass network controls, or blend malicious communications into proxied environments.
+regex: WebProxy\(|\S+\.proxy\s*=|\bproxy(enable|server).*value|SocksProxy
 basescore: 8.2
 tactic: [TA0005, TA0011]
 technique: [T1090, T1562.001]
