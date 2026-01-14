@@ -111,7 +111,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 <div align="center">
 
-** Spotting Suspicious PowerShell payloads, one indicator at a time.**
+**Spotting Suspicious PowerShell payloads, one indicator at a time.**
 
 [Issues](https://github.com/avasero/psexposed/issues) • [Discussions](https://github.com/avasero/psexposed/discussions)
 
