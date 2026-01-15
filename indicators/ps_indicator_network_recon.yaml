@@ -1,0 +1,11 @@
+name: Network reconnaissance related activity
+description: Detects PowerShell usage of network inspection and discovery primitives that enumerate connections, neighbors, or network configuration details, commonly used during host and network reconnaissance.
+regex: NetTCPConnection|Get-NetNeighbor|\.NetworkInformation
+basescore: 8
+tactic: [TA0007]
+technique: [T1046, T1016]
+reference:
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/powershell/powershell_classic/posh_pc_susp_get_nettcpconnection.yml
+  - https://attack.mitre.org/techniques/T1046/
+  - https://attack.mitre.org/techniques/T1016/
+  - https://www.atomicredteam.io/atomic-red-team/atomics/T1046

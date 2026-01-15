@@ -1,0 +1,8 @@
+name: Nested encoded command trace
+description: Identifies potential encoded PowerShell invocations that decode to a secondary PS command, a common obfuscation and staging technique. This regex is one of a VERY FEW recommended to be used in case-sensitive mode (refer to FAQ 3.2.1 entry).
+regex: (cABvAHcAZQByAHMAaABlAGwAbAA|cAB3AHMAaAA)[A-Za-z0-9+/]{20,}={0,2}
+basescore: 10
+tactic: TA0002
+technique: [T1059.001, T1027]
+reference:
+  - https://www.joesandbox.com/analysis/1720211/0/html

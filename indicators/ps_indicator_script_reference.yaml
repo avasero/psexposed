@@ -1,0 +1,10 @@
+name: Potential script reference
+description: Detects references to common Windows script hosts/interpreters (wscript/cscript/JavaScript) or execution of script files (.bat/.cmd/.js/.vbs), which may indicate script-based execution.
+regex: wscript|cscript|javascript|\b\S+\.(bat|js|vbs|cmd)\b
+basescore: 6
+tactic: [TA0002]
+technique: [T1059.003, T1059.005, T1059.007]
+reference:
+  - https://attack.mitre.org/techniques/T1059/003/
+  - https://attack.mitre.org/techniques/T1059/005/
+  - https://attack.mitre.org/techniques/T1059/007/

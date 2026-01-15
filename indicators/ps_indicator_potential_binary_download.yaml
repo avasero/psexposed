@@ -1,0 +1,11 @@
+name: Potential binary file download
+description: Detects HTTP or HTTPS URLs referencing executable or installer file types commonly used for payload delivery, staging, or tool transfer during post-exploitation.
+regex: https*://\S+\.\S+/\S+\.(exe|bin|dll|msi|scr|cpl|ocx|sys)
+basescore: 8.4
+tactic: [TA0001, TA0011]
+technique: [T1105, T1566.001]
+reference:
+  - https://attack.mitre.org/techniques/T1105/
+  - https://attack.mitre.org/techniques/T1566/001/
+  - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1105/T1105.md
+  - https://unit42.paloaltonetworks.com/lnk-malware/

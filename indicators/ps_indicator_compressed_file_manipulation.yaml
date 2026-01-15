@@ -1,0 +1,8 @@
+name: Compressed file manipulation
+description: Detects creation or extraction of compressed archives via PowerShell or .NET APIs, which may indicate data collection, staging, or obfuscation activity.
+regex: GZipStream|IO.Compression|(expand|compress)-Archive|-7*zip|ExtractToDirectory
+basescore: 3.8
+tactic: [TA0009, TA0005]
+technique: [T1560]
+reference:
+  - https://attack.mitre.org/techniques/T1560/

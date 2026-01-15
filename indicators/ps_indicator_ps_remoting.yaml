@@ -1,0 +1,11 @@
+name: PS-Remoting usage
+description: Detects PowerShell remoting constructs that establish or reference remote PowerShell sessions, which can be used for lateral movement, remote command execution, or distributed administration and are frequently abused post-compromise.
+regex: -PSSession|PSRemoting
+basescore: 7
+tactic: [TA0008]
+technique: [T1021.006]
+reference:
+  - https://learn.microsoft.com/en-us/powershell/scripting/security/remoting/running-remote-commands?view=powershell-7.5&viewFallbackFrom=powershell-6#windows-powershell-remoting
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/powershell/powershell_script/posh_ps_enable_psremoting.yml
+  - https://attack.mitre.org/techniques/T1021/006/
+  - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1021.006/T1021.006.md

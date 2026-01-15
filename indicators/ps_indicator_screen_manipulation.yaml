@@ -1,0 +1,11 @@
+name: Screen manipulation
+description: Detects PowerShell usage of .NET screen capture primitives that can be used to capture the desktop for collection purposes, including CopyFromScreen and Windows.Forms.Screen. Initially inspired on a Sigma rule created by https://x.com/frack113.
+regex: CopyFromScreen|Windows\.Forms\.Screen|\.SendKeys|\.MainWindowTitle
+basescore: 8.8
+tactic: [TA0009]
+technique: [T1113]
+reference:
+  - https://attack.mitre.org/techniques/T1113/
+  - https://github.com/calinux-py/PowerShell/blob/main/Google%20Drive%20Pwn/drivepwn.ps1
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/powershell/powershell_script/posh_ps_capture_screenshots.yml
+  - https://www.atomicredteam.io/atomic-red-team/atomics/T1113

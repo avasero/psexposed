@@ -1,0 +1,10 @@
+name: Notable mailbox manipulation
+description: Spots suspicious mailbox configuration changes—forwarding rules, inbox manipulation, export requests, transport-rule modifications, and privilege or audit setting changes.
+regex: new-MailboxExportRequest|(new|set)-InboxRule .*(MoveToFolder|ForwardTo|RedirectTo|DeleteMessage)|mailbox.+(ForwardingSmtpAddress|ForwardingAddress|DeliverToMailboxAndForward)|AutoForwardEnabled.+true|(new|set)-TransportRule.+(BlindCopyTo|RedirectMessageTo|AddToRecipients)|Search-Mailbox.+TargetMailbox|MailboxPermission.+FullAccess|Mailbox.+(GrantSendOnBehalfTo|AuditEnabled.+false)
+basescore: 10
+tactic: [TA0006]
+technique: [T1098]
+reference:
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/cloud/azure/identity_protection/azure_identity_protection_inbox_manipulation.yml
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/cloud/azure/identity_protection/azure_identity_protection_inbox_forwarding_rule.yml
+  - https://learn.microsoft.com/en-us/defender-xdr/alert-grading-playbook-inbox-manipulation-rules
