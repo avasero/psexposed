@@ -20,21 +20,21 @@ Any regex match simply indicates yet another trace/behavior present in the PS co
 
 There are multiple reasons here. Below a few highlights:
 
-- The way Sigma is consumed today might not be idea for these type of indicators given they are simply that, not actual detections.
+- The way Sigma is consumed today might not be ideal for these type of indicators given they are simply that, not actual detections.
 - The structure used in Sigma requires more metadata and we wanted to create a very simple regex DB of PS indicators.
 - The regex value is easily expanded and fits pretty much any SIEM/EDR/Detection product as the values are PCRE-compliant.
 
+By the way, we have been collaborating with Sigma project leaders to make sure we make the best use of that as well as avoid any potential overlaps, especially without providing the credits/references.
+
 ### 3. What's the ReGex format used?
 
-The regular expressions used in this project follow the [Perl Compatible Regular Expressions](https://www.pcre.org/) (PCRE) standard.
+The regular expressions used in this project follow the [Perl Compatible Regular Expressions](https://www.pcre.org/) (PCRE) standard. However, consider checking the notes below.
 
 #### 3.1 A few notes to consider when using regex in Splunk/SPL:
 
 - The reverse slash must be double escaped in SPL. Therefore, anywhere you see a "\\" consider adding an extra reverse slash to consume the regex in SPL. Reference [here](https://help.splunk.com/en/splunk-enterprise/search/search-manual/9.4/expressions-and-predicates/spl-and-regular-expressions).
 - Some indicators (ex.: [Encoded command usage](https://github.com/avasero/psexposed/blob/main/indicators/ps_indicator_encodedcommand.yaml)) make use of unicode char references. PCRE follows \uXXXX template in patterns whereas Splunk's SPL expects unicode as \x{XXXX}. We are going to warn you about that in each indicator but consider that in case you consume the indicators 'as is'.
 
-#### 3.2 A few notes to consider when consuming the regex values:
+#### 3.2 All regex values are case **IN**sensitive by default, unless explicitly referenced in the description. Note: some implementation do support `(?-i)` flag in front of the regex value (e.g., KQL) so consider that.
 
-##### 3.2.1 All regex values are case **IN**sensitive by default, unless explicitly referenced in the description. Note: some implementation do support `(?-i)` flag in front of the regex value (e.g., KQL) so consider that.
-
-##### 3.2.2 Make sure they are wrapped with double quotes as those are escaped within the values themselves, unless you want to revert it by escaping the single quotes instead.
+#### 3.3 Make sure they are wrapped with double quotes (") as those are escaped within the values themselves, unless you want to revert on your own by escaping the single quotes instead.
