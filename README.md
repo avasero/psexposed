@@ -81,6 +81,12 @@ Aside from _Critical_ and some _High_ indicators, no single indicator should be 
 
 That said, it’s strongly recommended to use indicators as part of a broader detection model.
 
+##  FAQ
+
+Consider checking the FAQ as well, especially when it comes to regex related questions:
+
+https://github.com/avasero/psexposed/blob/main/FAQ.md
+
 ##  How to Contribute
 
 The contribution process is simple and straightforward:
