@@ -74,11 +74,12 @@ jobs:
           CHANGED_FILES: ${{ needs.step-1-detect-changes.outputs.changed-files }}
         run: |
           echo "=== STEP 2: YAML SYNTAX ==="
+          pip install regex -q
           ERRORS=0
-          
+
           cat > /tmp/validate_yaml.py << 'PYSCRIPT'
           import yaml
-          import re
+          import regex
           import sys
           
           filepath = sys.argv[1]
@@ -86,8 +87,8 @@ jobs:
               content = f.read()
           
           # Remove regex field entirely to avoid false positives from complex patterns
-          content_no_regex = re.sub(r'^regex:.*?(?=^\w|\Z)', '', content, flags=re.MULTILINE | re.DOTALL)
-          
+          content_no_regex = regex.sub(r'^regex:.*?(?=^\w|\Z)', '', content, flags=regex.MULTILINE | regex.DOTALL)
+
           try:
               yaml.safe_load(content_no_regex)
               print("  OK")
@@ -96,7 +97,7 @@ jobs:
               print(f"  YAML ERROR: {e}")
               sys.exit(1)
           PYSCRIPT
-          
+
           for file in $(echo "$CHANGED_FILES" | jq -r '.[]'); do
             [ ! -f "$file" ] && continue
             echo "Checking: $file"
@@ -319,11 +320,12 @@ jobs:
           CHANGED_FILES: ${{ needs.step-1-detect-changes.outputs.changed-files }}
         run: |
           echo "=== STEP 4: DATA TYPES ==="
+          pip install regex -q
           ERRORS=0
-          
+
           cat > /tmp/validate.py << 'PYSCRIPT'
           import yaml
-          import re
+          import regex
           import sys
           
           filepath = sys.argv[1]
@@ -331,11 +333,11 @@ jobs:
               content = f.read()
           
           # Remove regex field to avoid parsing issues
-          content_no_regex = re.sub(r'^regex:.*?(?=^\w|\Z)', '', content, flags=re.MULTILINE | re.DOTALL)
+          content_no_regex = regex.sub(r'^regex:.*?(?=^\w|\Z)', '', content, flags=regex.MULTILINE | regex.DOTALL)
           data = yaml.safe_load(content_no_regex)
-          
+
           errors = 0
-          
+
           bs = data.get('basescore')
           try:
               val = float(bs)
@@ -384,10 +386,11 @@ jobs:
           CHANGED_FILES: ${{ needs.step-1-detect-changes.outputs.changed-files }}
         run: |
           echo "=== STEP 5: REGEX PATTERNS ==="
+          pip install regex -q
           ERRORS=0
-          
+
           cat > /tmp/validate_regex.py << 'PYSCRIPT'
-          import re
+          import regex
           import sys
           
           def extract_regex_raw(filepath):
@@ -410,10 +413,10 @@ jobs:
               sys.exit(1)
           
           try:
-              re.compile(pattern)
+              regex.compile(pattern)
               print("Regex valid")
               sys.exit(0)
-          except re.error as e:
+          except regex.error as e:
               print(f"Invalid regex: {e}")
               sys.exit(1)
           PYSCRIPT

@@ -79,11 +79,12 @@ jobs:
           UPSERT_FILES: ${{ needs.step-1-detect-changes.outputs.upsert-files }}
         run: |
           echo "=== STEP 2: YAML SYNTAX ==="
+          pip install regex -q
           ERRORS=0
-          
+
           cat > /tmp/validate_yaml.py << 'PYSCRIPT'
           import yaml
-          import re
+          import regex
           import sys
           
           filepath = sys.argv[1]
@@ -91,7 +92,7 @@ jobs:
               content = f.read()
           
           # Remove regex field entirely to avoid false positives from complex patterns
-          content_no_regex = re.sub(r'^regex:.*?(?=^\w|\Z)', '', content, flags=re.MULTILINE | re.DOTALL)
+          content_no_regex = regex.sub(r'^regex:.*?(?=^\w|\Z)', '', content, flags=regex.MULTILINE | regex.DOTALL)
           
           try:
               yaml.safe_load(content_no_regex)
@@ -156,11 +157,12 @@ jobs:
           UPSERT_FILES: ${{ needs.step-1-detect-changes.outputs.upsert-files }}
         run: |
           echo "=== STEP 4: DATA TYPES ==="
+          pip install regex -q
           ERRORS=0
-          
+
           cat > /tmp/validate.py << 'PYSCRIPT'
           import yaml
-          import re
+          import regex
           import sys
           
           filepath = sys.argv[1]
@@ -168,11 +170,11 @@ jobs:
               content = f.read()
           
           # Remove regex field to avoid parsing issues
-          content_no_regex = re.sub(r'^regex:.*?(?=^\w|\Z)', '', content, flags=re.MULTILINE | re.DOTALL)
+          content_no_regex = regex.sub(r'^regex:.*?(?=^\w|\Z)', '', content, flags=regex.MULTILINE | regex.DOTALL)
           data = yaml.safe_load(content_no_regex)
-          
+
           errors = 0
-          
+
           bs = data.get('basescore')
           try:
               val = float(bs)
@@ -217,10 +219,11 @@ jobs:
           UPSERT_FILES: ${{ needs.step-1-detect-changes.outputs.upsert-files }}
         run: |
           echo "=== STEP 5: REGEX PATTERNS ==="
+          pip install regex -q
           ERRORS=0
-          
+
           cat > /tmp/validate_regex.py << 'PYSCRIPT'
-          import re
+          import regex
           import sys
           
           def extract_regex_raw(filepath):
@@ -251,7 +254,7 @@ jobs:
                           if value:
                               patterns.append(value)
                       elif stripped and not stripped.startswith('#') and not stripped.startswith('-'):
-                          if re.match(r'^\w+:', stripped):
+                          if regex.match(r'^\w+:', stripped):
                               in_regex = False
               return patterns
           
@@ -266,8 +269,8 @@ jobs:
                   errors += 1
                   continue
               try:
-                  re.compile(p)
-              except re.error as e:
+                  regex.compile(p)
+              except regex.error as e:
                   errors += 1
                   print(f"  Invalid regex: {e}")
                       
@@ -307,9 +310,11 @@ jobs:
           
           INDICATORS_DATA="[]"
           
+          pip install regex -q
+
           # Create script to quote regex field in YAML content
           cat > /tmp/quote_regex.py << 'PYSCRIPT'
-          import re
+          import regex
           import sys
           
           content = sys.stdin.read()
@@ -327,7 +332,7 @@ jobs:
               return f"{prefix}'{escaped}'"
           
           # Match regex: followed by value (not a list)
-          result = re.sub(r'^(regex:\s*)([^\n]+)$', quote_regex, content, flags=re.MULTILINE)
+          result = regex.sub(r'^(regex:\s*)([^\n]+)$', quote_regex, content, flags=regex.MULTILINE)
           print(result, end='')
           PYSCRIPT
           
