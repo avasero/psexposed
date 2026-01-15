@@ -1,9 +1,0 @@
-name: Loopback address URL reference
-description: Detects HTTP/HTTPS URLs referencing loopback targets (127.0.0.0/8, ::1, localhost). In malicious scripts this is often associated with local proxying/tunneling, accessing locally bound services, or chaining traffic through an internal relay on the same host.
-regex: https*://(127\.\d+\.\d+\.\d+|::1|localhost)
-basescore: 6.6
-tactic: [TA0011]
-technique: [T1090.001]
-reference:
-  - https://attack.mitre.org/techniques/T1090/001/
-  - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1090.001/T1090.001.md
