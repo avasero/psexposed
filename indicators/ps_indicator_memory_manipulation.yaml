@@ -1,0 +1,10 @@
+name: Memory manipulation
+description: This indicator matches common in-memory execution primitives (allocation, protection changes, pointer marshalling, and reflective assembly loading) frequently used by fileless PowerShell payloads and injection-style tradecraft.
+regex: VirtualAlloc|ProcessMemory|VirtualProtect|PtrToStructure|Assembly::Load|MemoryStream|AllocHGlobal|Buffer\S+BlockCopy
+basescore: 9.4
+tactic: [TA0007]
+technique: [T1059.001, T1106]
+reference:
+  - https://github.com/PowerShellMafia/PowerSploit
+  - https://github.com/PowerShellMafia/PowerSploit/blob/master/CodeExecution/Invoke-ReflectivePEInjection.ps1
+  - https://github.com/BC-SECURITY/Empire

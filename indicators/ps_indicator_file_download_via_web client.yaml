@@ -1,0 +1,11 @@
+name: File download via PS web client
+description: Detects PowerShell usage of common web client methods (Invoke-WebRequest/iwr, curl, wget) combined with explicit file output parameters, indicating remote file retrieval and on-disk staging commonly used for tool transfer or payload delivery.
+regex: (invoke[-]WebRequest|curl|wget|iwr)\s+[\s\S]*(-outfile|out-file)
+basescore: 6.5
+tactic: [TA0011]
+technique: [T1105]
+reference:
+  - https://attack.mitre.org/techniques/T1105/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_susp_web_request_cmd_and_cmdlets.yml
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_powershell_download_iex.yml
+  - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1105/T1105.md

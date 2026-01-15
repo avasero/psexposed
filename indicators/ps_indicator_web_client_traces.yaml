@@ -1,0 +1,14 @@
+name: Web Client traces
+description: >
+  Spots potential attempts to use PS as a web client to access network resources. Initially inspired by the Sigma rule in the references.
+
+  Note that the unicodes below refer to Hyphen-Minus (ASCII hyphen), En/m Dash and Horizontal Bar.
+  Refer to FAQ entry 3.1 in the reference to use those in Splunk/SPL.
+regex: net\.http|RestMethod|[\.-]webclient|WebRequest|Net.Sockets.TcpClient|InternetExplorer\.Application|(win|Xml)Http|\b(curl|wget|iwr|irm)\s+|(InstallProduct\(|bitstransfer)[\s\S]+https*://|\b[\u002D\u2013\u2014\u2015](Uri|Url)\s*https*://
+basescore: 7.5
+tactic: TA0002
+technique: [T1105, T1059.001]
+reference:
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_susp_web_request_cmd_and_cmdlets.yml
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_powershell_download_iex.yml
+  - https://github.com/avasero/psexposed/blob/main/FAQ.md#31-a-few-notes-to-consider-when-using-regex-in-splunkspl

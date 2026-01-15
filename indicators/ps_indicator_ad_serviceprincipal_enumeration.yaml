@@ -1,0 +1,10 @@
+name: AD Service Principal enumeration
+description: Potential Service Principal enumeration activity.
+regex: get-ad.+\s+ServicePrincipalName|servicePrincipalName=\*|\.DirectoryServices\.+principal|object.+serviceprincipalname
+basescore: 9.7
+tactic: [TA0007]
+technique: [T1059.001, T1069.002, T1558.003, T1018]
+reference:
+  - https://lolad-project.github.io/
+  - https://learn.microsoft.com/en-us/windows/win32/ad/service-principal-names
+  - https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/t1208-kerberoasting

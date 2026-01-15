@@ -1,0 +1,15 @@
+name: Potential downgrade attack
+description: >
+  Detects explicit attempts to force an older protocol or feature version (e.g., specifying version 2) via command-line switches,
+  a pattern commonly associated with downgrade attacks to weaken security controls or exploit legacy behaviors.
+
+  Note that the unicodes below refer to Hyphen-Minus (ASCII hyphen), En/m Dash and Horizontal Bar.
+  Refer to FAQ entry 3.1 in the reference to use those in Splunk/SPL.
+regex: \s[\u002D\u2013\u2014\u2015/]ve*r*s*i*o*n*\s+2\b
+basescore: 7.4
+tactic: [TA0005]
+technique: [T1573]
+reference:
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_powershell_downgrade_attack.yml
+  - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1562.010/T1562.010.yaml
+  - https://attack.mitre.org/techniques/T1562/010/

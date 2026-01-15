@@ -1,0 +1,9 @@
+name: Scheduled Task modification
+description: Spots potential Windows Task creation/modification via the most common forms/cmdlets.
+regex: \bRegister-ScheduledTask|New-ScheduledTask(Trigger|Action|Setting)|Win32_ScheduledJob.+create|schtasks[\s\S]+\s/create|Schedule\.Service.+\.create
+basescore: 9.7
+tactic: [TA0003, TA0004]
+technique: [T1053.005, T1059.001]
+reference:
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/powershell/powershell_script/posh_ps_cmdlet_scheduled_task.yml
+  - https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1053.005/T1053.005.md#atomic-test-4---powershell-cmdlet-scheduled-task

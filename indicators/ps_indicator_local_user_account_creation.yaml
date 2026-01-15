@@ -1,0 +1,10 @@
+name: Local user account creation
+description: Detects PowerShell creation of local user accounts, a common persistence and privilege-enablement technique used to establish or maintain access on a host.
+regex: New-LocalUser
+basescore: 10
+tactic: [TA0003]
+technique: [T1136.001]
+reference:
+  - https://attack.mitre.org/techniques/T1136/001/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/powershell/powershell_script/posh_ps_localuser.yml
+  - https://www.atomicredteam.io/atomic-red-team/atomics/T1136.001

@@ -1,0 +1,13 @@
+name: Potential Sysmon evasion activity
+description: Detects PowerShell or command-line activity querying Sysmon services, processes, configuration, event logs, or registry keys, which is commonly performed by attackers to assess monitoring coverage prior to disabling, bypassing, or evading Sysmon-based detection.
+regex: Get-(Service|Process|ItemProperty|WinEvent|wevutil(\.exe)*)\s+.+\bSysmon|CurrentControlSet.+Services.+Sysmon|Sysinternals.+System Monitor
+basescore: 10
+tactic: [TA0005]
+technique: [T1562.001, T1112]
+reference:
+  - https://www.ired.team/offensive-security/enumeration-and-discovery/detecting-sysmon-on-the-victim-host
+  - https://attack.mitre.org/techniques/T1562/001/
+  - https://attack.mitre.org/techniques/T1112/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_sysmon_service_manipulation.yml
+  - https://www.darkoperator.com/blog/2018/10/5/operating-offensively-against-sysmon
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_fltmc_unload_driver_sysmon.yml

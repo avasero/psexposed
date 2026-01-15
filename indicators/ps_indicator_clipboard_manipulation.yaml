@@ -1,0 +1,8 @@
+name: Clipboard manipulation
+description: Simple clipboard references.
+regex: \.clipboard|clipboardcontent|get-clipboard
+basescore: 9.2
+tactic: [TA0009]
+technique: [T1059.001, T1115]
+reference:
+  - https://attack.mitre.org/techniques/T1115/

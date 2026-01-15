@@ -1,0 +1,10 @@
+name: Scheduled task activity
+description: Detects scheduled task activity via PowerShell, native utilities, WMI, or registry artifacts, which may indicate persistence or privilege escalation.
+regex: get-ScheduledTask|schtasks|Schedule\.Service|Win32_ScheduledJob|PS_ScheduledTask|Schedule.+TaskCache
+basescore: 3.8
+tactic: [TA0003, TA0004]
+technique: [T1053.005]
+reference:
+  - https://attack.mitre.org/techniques/T1053/005/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/powershell/powershell_script/posh_ps_cmdlet_scheduled_task.yml
+  - https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1053.005/T1053.005.md#atomic-test-4---powershell-cmdlet-scheduled-task
