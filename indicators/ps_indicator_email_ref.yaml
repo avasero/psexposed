@@ -1,0 +1,9 @@
+name: Email related reference
+description: Spots obvious email related commands and references.
+regex: Mail(box|from|to|message|kit)|attachment|\b-(from|to)\s+\S+@\S+\.\S+|send\S*mail
+basescore: 5.7
+tactic: [TA0011]
+technique: [T1071.003]
+reference:
+  - https://www.group-ib.com/blog/dark-pink-apt/
+  - https://attack.mitre.org/techniques/T1071/003/

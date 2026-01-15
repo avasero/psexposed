@@ -1,0 +1,13 @@
+name: Notable cryptographic reference
+description: Detects explicit PowerShell references to notable .NET cryptographic primitives (AES, hashing, key derivation, cipher modes, padding, CryptoStream), which are commonly used by malware to encrypt/decrypt payloads, protect configuration data, or implement encrypted C2 communications.
+regex: Cryptography\.(Aes|SHA|CipherMode|PaddingMode|CryptoStream|Rfc2898DeriveBytes)
+basescore: 10
+tactic: [TA0005]
+technique: [T1027, T1140]
+reference:
+  - https://0xtoxin.github.io/threat%20breakdown/ScrubCrypt-Rebirth-Of-Jlaive/
+  - https://www.fortinet.com/blog/threat-research/old-cyber-gang-uses-new-crypter-scrubcrypt
+  - https://gist.github.com/mthcht/e22174700cfc7959dac666ca7325c98f
+  - https://attack.mitre.org/techniques/T1027/
+  - https://attack.mitre.org/techniques/T1140/
+  - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1027/T1027.md

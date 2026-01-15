@@ -1,0 +1,9 @@
+name: Notable stream activity
+description: Detects PowerShell usage of .NET stream classes commonly leveraged for custom network communication, data transfer, or obfuscated payload delivery, including SSL streams and stream readers/writers.
+regex: SslStream|IO\.Stream(Reader|Writer)|WriteToStream
+basescore: 8.8
+tactic: [TA0011]
+technique: [T1071.001]
+reference:
+  - https://attack.mitre.org/techniques/T1071/001/
+  - https://www.atomicredteam.io/atomic-red-team/atomics/T1071.001

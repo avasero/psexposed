@@ -1,0 +1,9 @@
+name: Potential data staging behavior
+description: Detects PowerShell activity indicative of data staging, where directories are created and followed by bulk file enumeration or copying operations commonly used to prepare data for exfiltration.
+regex: (CreateDirectory|mkdir|(expand|compress)-Archive|-7*zip|ExtractToDirectory|(new-item|ni).+(i|ItemType)\s+Directory).+\b(cp|gci|Get-ChildItem|copy-item|robocopy|\S+::Copy|start-BitsTransfer)\s+
+basescore: 8.8
+tactic: [TA0009]
+technique: [T1074.001]
+reference:
+  - https://attack.mitre.org/techniques/T1074/001/
+  - https://www.atomicredteam.io/atomic-red-team/atomics/T1074.001

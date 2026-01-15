@@ -1,0 +1,10 @@
+name: MS Defender registry path reference
+description: Detects references to Microsoft Defender policy registry paths, which are commonly targeted to modify or disable Defender protections via configuration changes.
+regex: SOFTWARE[\\]+Policies[\\]+Microsoft[\\]+Windows Defender
+basescore: 9.2
+tactic: [TA0005]
+technique: [T1562.001]
+reference:
+  - https://attack.mitre.org/techniques/T1562/001/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/registry/registry_set/registry_set_windows_defender_tamper.yml
+  - https://www.atomicredteam.io/atomic-red-team/atomics/T1562.001

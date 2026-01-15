@@ -1,0 +1,12 @@
+name: Potential Instant Messaging API communication
+description: Detects network or script references to core Instant Messaging backend API and transport domains (e.g., Discord, WhatsApp, Telegram, Slack, Teams, Signal, Facebook Messenger, Google Chat, WeChat, Skype). Access to these domains very reliably implies real-time messaging activity rather than generic web browsing and may indicate data exfiltration, C2 over IM, or unauthorized communications.
+regex: gateway\.discord\.gg|whatsapp\.net|api\.telegram\.org|slack-msgs\.com|msgapi\.teams\.microsoft\.com|chat\.signal\.org|mqtt-mini\.facebook\.com|chat\.googleapis\.com|wx\.qq\.com|client-s\.gateway\.messenger\.live\.com
+basescore: 10
+tactic: [TA0011]
+technique: [T1071.001]
+reference:
+  - https://www.group-ib.com/blog/dark-pink-apt/
+  - https://cloud.google.com/blog/topics/threat-intelligence/telegram-malware-iranian-espionage
+  - https://attack.mitre.org/techniques/T1071/001/
+  - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1071.001/T1071.001.md
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/network_connection/net_connection_win_susp_im_domains.yml
