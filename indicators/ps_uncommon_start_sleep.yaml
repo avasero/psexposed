@@ -1,0 +1,12 @@
+name: Uncommon Start-Sleep time
+description: Detects unusually long PowerShell sleep intervals specified via Start-Sleep with large numeric values, a common sandbox- and analysis-evasion technique used to delay execution until security tooling times out.
+regex: start-sleep\b(?:\s+-s(?:econds)?\s+(?:6\d{2,}|[7-9]\d{2,}|\d{4,})|\s+-m(?:inutes)?\s+(?:1\d+|[2-9]\d*)|\s+(?:6\d{2,}|[7-9]\d{2,}|\d{4,}))
+basescore: 10
+tactic: [TA0005]
+technique: [T1497.003]
+reference:
+  - https://securitylabs.datadoghq.com/articles/mut-9332-malicious-solidity-vscode-extensions/
+  - https://www.esentire.com/blog/esentire-threat-intelligence-malware-analysis-purple-fox
+  - https://attack.mitre.org/techniques/T1497/003/
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/powershell/powershell_script/posh_ps_long_sleep.yml
+  - https://github.com/redcanaryco/atomic-red-team/blob/master/atomics/T1497.003/T1497.003.md

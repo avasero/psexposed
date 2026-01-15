@@ -1,0 +1,16 @@
+name: Potential Base64 conversion
+description: Detects Base64 encoding and decoding primitives in PowerShell scripts that are commonly used to obfuscate data or stage payloads prior to further processing.
+regex: (To|From)Base64String|TransformFinalBlock\(|Base64Transform
+basescore: 9.3
+tactic: [TA0005]
+technique: [T1027]
+reference:
+  - https://archive.nullcon.net/website/archives/pdf/goa-2017/invoke-obfuscation-nullcon-2017.pdf
+  - https://community.sophos.com/sophos-labs/b/blog/posts/decoding-malicious-powershell
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_powershell_frombase64string.yml
+  - https://checkmarx.com/zero-post/checkmarx-zero-takes-down-malicious-prettier-alternative-found-in-vscode-marketplace/
+  - https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.tobase64transform.transformfinalblock?view=net-9.0
+  - https://attack.mitre.org/techniques/T1027/
+  - https://www.atomicredteam.io/atomic-red-team/atomics/T1027
+  - https://github.com/SigmaHQ/sigma/blob/master/rules/windows/process_creation/proc_creation_win_powershell_base64_frombase64string.yml
+  - https://clickfix.carsonww.com/domains/tema-com-ua-568517.hostingersite.com

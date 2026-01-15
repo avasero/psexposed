@@ -1,0 +1,9 @@
+name: Slightly suspicious keywords
+description: This is a generic indicator to match against a list of keywords, absolutely not malicious on their own but used for contextual enrichment and weak-signal correlation. Also refer to other indicators ending with 'keywords' as they also accomodate multiple keywords but for higher signals. Keywords might be removed and added to a more specific indicator in the future.
+regex: silentlycontinue|Start\-Sleep|[-]verb\s+runas|Stop-Process\s.*-force|env:(TEMP|TMP|Path|USERNAME|COMPUTERNAME|SYSTEMROOT|WINDIR|HOMEDRIVE|HOMEPATH|USERPROFILE|SESSIONNAME|PROCESSOR_ARCHITECTURE)|-(whatif|UseBasicParsing)|get-MpPreference.+Exclusion
+basescore: 2.0
+max_match: 1
+tactic: TA0002
+technique: [T1059.001]
+reference:
+  - https://attack.mitre.org/techniques/T1059/001/

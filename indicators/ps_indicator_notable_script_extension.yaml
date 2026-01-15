@@ -1,0 +1,9 @@
+name: Notable script extension
+description: Detects PowerShell references to high-risk script container extensions commonly abused for payload staging and execution, including HTML Applications and Windows Script Files.
+regex: \S+\.(wsf|hta)
+basescore: 9.2
+tactic: [TA0005]
+technique: [T1059.005, T1218.005]
+reference:
+  - https://attack.mitre.org/techniques/T1059/005/
+  - https://attack.mitre.org/techniques/T1218/005/

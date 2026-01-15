@@ -1,0 +1,9 @@
+name: Uncommon alias reference
+description: Detects the use of less prevalent or abuse-prone PowerShell aliases observed in obfuscated or malicious scripts.
+regex: \b(sv|sal|nal|epal|ipal|sajb|rcjb|rjb|clv|clhy|sp|gp|ni|ri|mi|cp|sl|rv|gcm|gm)\s+[\$\w\\:.-]+\b
+basescore: 10
+tactic: [TA0002, TA0005]
+technique: [T1059.001, T1027]
+reference:
+  - https://attack.mitre.org/techniques/T1059/001/
+  - https://github.com/PowerShellMafia/PowerSploit
