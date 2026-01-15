@@ -1,0 +1,12 @@
+name: Notable user account SID reference
+description: Detects references to high-value Windows security identifiers (SIDs) associated with privileged local groups, domain administrative groups, or built-in service accounts, which are commonly queried or checked during reconnaissance, privilege validation, or escalation logic.
+regex: \bS-1-5-(18|19|20|32-(544|548|549|550|551|573)|21-\d+-\d+-\d+-(500|512|516|518|519))\b
+basescore: 8
+tactic: [TA0007, TA0004]
+technique:
+  - T1069.001
+  - T1087.001
+reference:
+  - https://learn.microsoft.com/windows-server/identity/ad-ds/manage/understand-security-identifiers
+  - https://attack.mitre.org/techniques/T1069/001/
+  - https://attack.mitre.org/techniques/T1087/001/
