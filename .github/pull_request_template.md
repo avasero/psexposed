@@ -4,7 +4,6 @@
 - [ ] 🔧 Existing indicator improvement
 - [ ] 🐛 Bug fix
 - [ ] 📚 Documentation update
-- [ ] 🧹 Code cleanup
 
 ## 💬 Description
 
@@ -19,15 +18,6 @@
 - [ ] Included relevant references
 - [ ] Score is appropriate (1-10)
 - [ ] Description is clear and concise
-
-## 🧪 Tests Performed
-
-- [ ] Tested the regex pattern
-- [ ] Checked for false positives
-- [ ] Validated provided examples
-- [ ] Ran local validation scripts
-
-
 ---
 
 **🔒 By submitting this PR, you agree that your contributions will be licensed under the MIT License.**
