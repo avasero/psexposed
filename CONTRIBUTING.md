@@ -6,11 +6,6 @@ his guide will help you submit new PowerShell security indicators for the commun
 
 ### 1. 📝 Submit New Indicators
 
-**Via GitHub Issues (Recommended):**
-1. [Click here to create a new indicator](https://github.com/en20/psexposed/issues/new?template=new-indicator.md)
-2. Fill out the template with your indicator information
-3. Wait for community review
-
 **Via Pull Request:**
 1. Fork the repository
 2. Create a branch: `git checkout -b new-indicator-[name]`
