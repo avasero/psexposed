@@ -25,4 +25,4 @@ All contributions are recognized and credited. The creators and maintainers are 
 
 ---
 
-**Thank you for helping make PowerShell more secure! 🛡️**
+**Thank you for helping make powershell more secure! 🛡️**
