@@ -363,8 +363,10 @@ jobs:
                 --arg lk "$LINK" \
                 --arg mb "$PR_AUTHOR" \
                 --arg av "$AVATAR" \
+                --arg mg "$GITHUB_ACTOR" \
+                --arg ma "https://github.com/${GITHUB_ACTOR}.png" \
                 --arg ct "$PROCESSED_CONTENT" \
-                '{file_path:$fp,content:$ct,link:$lk,last_modified_by:$mb,last_modified_by_avatar:$av,action:"upsert"}')
+                '{file_path:$fp,content:$ct,link:$lk,last_modified_by:$mb,last_modified_by_avatar:$av,merger:$mg,merger_avatar:$ma,action:"upsert"}')
               
               INDICATORS_DATA=$(echo "$INDICATORS_DATA" | jq ". += [$INDICATOR_JSON]")
             fi
