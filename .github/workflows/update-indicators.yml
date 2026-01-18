@@ -1,7 +1,8 @@
 name: Publish indicator to psexposed
 
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches:
       - main
       - master
@@ -12,6 +13,7 @@ on:
 jobs:
   step-1-detect-changes:
     name: "Step 1: Detect Changes"
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     outputs:
       has-changes: ${{ steps.check-changes.outputs.has_changes }}
@@ -348,7 +350,7 @@ jobs:
               INDICATOR_JSON=$(jq -n \
                 --arg fp "$file" \
                 --arg lk "$LINK" \
-                --arg mb "$GITHUB_ACTOR" \
+                --arg mb "$PR_AUTHOR" \
                 --arg av "$AVATAR" \
                 --arg ct "$PROCESSED_CONTENT" \
                 '{file_path:$fp,content:$ct,link:$lk,last_modified_by:$mb,last_modified_by_avatar:$av,action:"upsert"}')
