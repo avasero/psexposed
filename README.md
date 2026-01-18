@@ -105,9 +105,7 @@ The contribution process is simple and straightforward:
 
 ##  Community
 
--  [Discussions](https://github.com/en20/psexposed/discussions) - Questions and discussions
--  [Issues](https://github.com/en20/psexposed/issues) - Bugs and improvements
--  [Wiki](https://github.com/en20/psexposed/wiki) - Detailed documentation
+-  [Issues](https://github.com/avasero/psexposed/issues) - Bugs and improvements
 
 ##  License
 
