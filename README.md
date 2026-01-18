@@ -47,15 +47,15 @@ reference:
   - https://attack.mitre.org/techniques/T1047/
 ```
 
-In that case, only **one** match displayed in the results, even if the payload matches multiple patterns present in the regex. That's because there's an implied maxmatch = 1. That's the **default**, which applies to the vast majority of indicators.
+In that case, only **one** match displayed in the results, even if the payload matches multiple patterns present in the regex. That's because there's an implied _max_match = 1_. That's the **default**, which applies to the vast majority of indicators.
 
-Now, in case an indicator comprises of multiple patterns such as the one below, setting max_match>1 will not only display multiple 'matches' but can also influence in how your detection model deals with multiple matches given the indicator base score. 
+Now, in case an indicator comprises of multiple patterns such as the one below, setting _max_match_ > 1 will not only display multiple 'matches' but can also influence in how your detection model deals with multiple matches given the indicator base score. 
 
 ```yaml
 name: Highly suspicious keywords
 description: Detects the presence of multiple high-risk PowerShell keywords and behavioral primitives commonly associated with post-exploitation, credential access, lateral movement, defense evasion, and payload staging.
 regex: (start|complete)-bitstransfer|psrecon|-persistence|Reflection\.Assembly|spraying|shellcode|injection|BypassUAC|UACBypass|Rc4ByteStream|System\.Security\.Cryptography||DumpCreds|-decrypt # Truncated
-maxmatch: 2
+max_match: 2
 basescore: 8.2
 tactic: TA0002
 technique: T1059.001
