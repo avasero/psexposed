@@ -20,7 +20,7 @@ description: |
   detections covering malicious PowerShell tradecraft.
   
 regex: (start|complete)-bitstransfer|mimik|metasp|psrecon|-persistence|AssemblyBuilderAccess|Reflection\.Assembly|spraying|shellcode|injection|BypassUAC|UACBypass|Rc4ByteStream|System\.Security\.Cryptography|\blsass|LastLoggedOn|hijack|BackupPrivilege|\bngrok|stage0|comsvcs|backdoor|Microsoft\.Exchange|brute.?force|Port.?Scan|Exfiltration|exploit|beacon|-dump|SeTcbPrivilege|GPPPassword|CommandAs|\.kirbi|ntds\.dit|ntdsutil|krbtgt|esentutl|procdump|(\b|\.)amsi|antimalware|Downloadstring|-adgroupmember|StringBuilder|\bsekurlsa|SimonTatham|\bksetup\s|amsiInitFailed|ASCIIEncoding|::ReadAllText|DumpCreds|-decrypt|Schedule\.Service|e46eead8-0c54-4489-9898-8fa79d059e0e|window\.location|EtwEventWriteNoRegistration|PasswordVault|ADDefaultDomainPasswordPolicy|TrustedForDelegation|ProtectedData|BeginConnect|\.SMBOpen|ConsentPromptBehaviorAdmin|Management\.Automation\.Host|Port-Scan|LocalAdminAccess|PowerShellWebAccess|BitConverter|PingStatus|set-variable[\s\S]+get-variable|clear-history|\bWinPwn|ComputerDetail|Port.?Scan|nishang|\[scriptblock\]|kernel32|e[^a-z0-9]{1,2}n[^a-z0-9]{1,2}c[^a-z0-9]{1,2}o[^a-z0-9]{1,2}d[^a-z0-9]{1,2}e[^a-z0-9]{1,2}d|c[^a-z0-9]{1,2}o[^a-z0-9]{1,2}m[^a-z0-9]{1,2}m[^a-z0-9]{1,2}a[^a-z0-9]{1,2}n[^a-z0-9]{1,2}d|System32[\\]+config[\\]+(sam|security)|\-encod\s|\S\.pfx|ReceiveBufferSize|ActiveXObject|Exchange\.Management\.PowerShell|System\.Drawing\.bitmap|\.GetPixel|InvokeScript
-maxmatch: 2
+max_match: 2
 basescore: 8.2
 tactic: TA0002
 technique: T1059.001
