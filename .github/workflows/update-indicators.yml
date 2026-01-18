@@ -1,7 +1,7 @@
 name: Publish indicator to psexposed
 
 on:
-  pull_request:
+  pull_request_target:
     types: [closed]
     branches:
       - main
@@ -26,6 +26,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
 
       - name: Check changes
         id: check-changes
@@ -75,6 +76,8 @@ jobs:
     
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
 
       - name: Validate YAML
         env:
@@ -119,6 +122,8 @@ jobs:
     
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
 
       - name: Check fields
         env:
@@ -153,6 +158,8 @@ jobs:
     
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
 
       - name: Validate types
         env:
@@ -212,9 +219,11 @@ jobs:
     name: "Step 5: Regex Patterns"
     needs: [step-1-detect-changes, step-4-data-types]
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
 
       - name: Validate regex
         env:
@@ -293,9 +302,11 @@ jobs:
     name: "Step 6: Update Database"
     needs: [step-1-detect-changes, step-5-regex-patterns]
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
 
       - name: Send to Supabase
         env:
