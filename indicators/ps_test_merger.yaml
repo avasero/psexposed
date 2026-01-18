@@ -2,6 +2,7 @@ name: WMI usage COPY COPY CHANGED 01/18
 description: Detects general WMI usage
 regex:                                        WmiCommand//////XXXXXXXXXXXXXXXO
 basescore: 8
+max_match: 5
 tactic: [TA0003]
 technique: [T1048]
 reference:
