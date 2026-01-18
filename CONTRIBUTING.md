@@ -21,8 +21,6 @@ If you found a problem with an existing indicator, or a suggestion, etc:
 
 ## 🙏 Acknowledgments
 
-All contributions are recognized and credited. The creators and maintainers are also listed at the [PowerShell.Exposed](https://powershell.exposed) website.
+The creators and maintainers of indicators are also listed at the [powershell.exposed](https://powershell.exposed/indicators) website.
 
 ---
-
-**Thank you for helping make powershell more secure! 🛡️**
