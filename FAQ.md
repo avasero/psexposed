@@ -4,6 +4,7 @@
 
 - Regex focuses on behavior patterns rather than static strings, making detections more resilient to small attacker changes like renamed files, modified arguments, or reordered commands.
 - Regex-based indicators translate easily across SIEMs and EDRs, enabling vendor-agnostic detections that can be reused in Sigma, SPL, KQL, and other platforms.
+- Regex allows defenders to quickly expand its value into a logical OR expression using the pipe (|) operator which speeds up prototyping.
 - Regex is ideal for low-level signals that aren’t malicious alone but become high-value when combined with additional context, supporting precise, layered detections instead of noisy alerts.
 
 ---
@@ -23,6 +24,8 @@ There are multiple reasons here. Below a few highlights:
 - The way Sigma is consumed today might not be ideal for these type of indicators given they are simply that, not actual detections.
 - The structure used in Sigma requires more metadata and we wanted to create a very simple regex DB of PS indicators.
 - The regex value is easily expanded and fits pretty much any SIEM/EDR/Detection product as the values are PCRE-compliant.
+
+Read more [here](https://medium.com/@ateixei/introducing-powershell-exposed-4974fe712117).
 
 By the way, we have been collaborating with Sigma project leaders to make sure we make the best use of that as well as avoid any potential overlaps, especially without providing the credits/references.
 
