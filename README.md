@@ -91,10 +91,11 @@ https://github.com/avasero/psexposed/blob/main/FAQ.md
 
 The contribution process is simple and straightforward:
 
-1. **Create a branch** for your contribution
-2. **Add a new indicator** in the `indicators/` folder following the standard YAML format
-3. **Create a Pull Request** describing what the indicator does and its purpose
-4. **After merge**, the indicator will be automatically integrated into the application
+1. **Fork** the repository
+2. **Create a branch** for your contribution
+3. **Add a new indicator** in the `indicators/` folder following the standard YAML format
+4. **Create a Pull Request** describing what the indicator does and its purpose
+5. **After merge**, the indicator will be automatically integrated into the application
 
 ##  References
 
