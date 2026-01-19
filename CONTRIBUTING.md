@@ -24,5 +24,3 @@ If you found a problem with an existing indicator, or a suggestion, etc:
 ## 🙏 Acknowledgments
 
 The creators and maintainers of indicators are also listed at the [powershell.exposed](https://powershell.exposed/indicators) website.
-
----
