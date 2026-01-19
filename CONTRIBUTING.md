@@ -6,11 +6,13 @@ his guide will help you submit new PowerShell security indicators for the commun
 
 ### 1. 📝 Submit New Indicators
 
-**Via Pull Request:**
-1. Fork the repository
-2. Create a branch: `git checkout -b new-indicator-[name]`
-3. Add your file to the `indicators/` folder
-4. Submit a Pull Request
+The contribution process is simple and straightforward:
+
+1. **Fork** the repository
+2. **Create a branch** for your contribution
+3. **Add a new indicator** in the `indicators/` folder following the standard YAML format
+4. **Create a Pull Request** describing what the indicator does and its purpose
+5. **After merge**, the indicator will be automatically integrated into the application
 
 ### 2. 🐛 Report Issues
 
