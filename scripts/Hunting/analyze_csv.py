@@ -1,11 +1,12 @@
 import csv
 import json
 import os
+import glob
 import requests
 
 API_URL = "https://api.powershell.exposed/evaluate"
-API_TOKEN = "<ADD-YOUR-API-KEY>"
-CSV_FILE = "commands.csv"
+API_TOKEN = "your_psexposed_api_key_here"
+COMMANDS_DIR = "commands"
 OUTPUT_DIR = "outputs"
 
 SAVE_SEVERITIES = {"high", "critical"}  # only save if analysis.severity is one of these
@@ -34,8 +35,12 @@ def is_success(api_json: dict) -> bool:
     except (KeyError, TypeError):
         return False
 
-def main() -> None:
-    with open(CSV_FILE, newline="", encoding="utf-8") as csvfile:
+def process_csv(csv_file: str) -> None:
+    print(f"\n{'='*60}")
+    print(f"Processing: {csv_file}")
+    print(f"{'='*60}")
+
+    with open(csv_file, newline="", encoding="utf-8") as csvfile:
         reader = csv.reader(csvfile)
 
         # Skip header row
@@ -49,6 +54,7 @@ def main() -> None:
             payload = {"command": command}
 
             output_data = {
+                "source_file": os.path.basename(csv_file),
                 "line_number": line_number,
                 "command": command,
                 "request_payload": payload,
@@ -66,20 +72,38 @@ def main() -> None:
 
             except requests.exceptions.RequestException as e:
                 output_data["error"] = str(e)
-                print(f"[Line {line_number}] Request failed: {e}")
+                print(f"[{os.path.basename(csv_file)}:Line {line_number}] Request failed: {e}")
                 continue
 
             sev = extract_analysis_severity(output_data)
             ok = is_success(output_data)
 
             if ok and sev in SAVE_SEVERITIES:
-                output_file = os.path.join(OUTPUT_DIR, f"result_line_{line_number}.json")
+                base_name = os.path.splitext(os.path.basename(csv_file))[0]
+                output_file = os.path.join(OUTPUT_DIR, f"{base_name}_line_{line_number}.json")
                 with open(output_file, "w", encoding="utf-8") as f:
                     json.dump(output_data, f, indent=2, ensure_ascii=False)
 
-                print(f"[Line {line_number}] severity={sev} ✅ saved → {output_file}")
+                print(f"[Line {line_number}] severity={sev} saved -> {output_file}")
             else:
-                print(f"[Line {line_number}] severity={sev} ❌ not saved")
+                print(f"[Line {line_number}] severity={sev} not saved")
+
+def main() -> None:
+    csv_files = glob.glob(os.path.join(COMMANDS_DIR, "*.csv"))
+
+    if not csv_files:
+        print(f"No CSV files found in '{COMMANDS_DIR}/' directory.")
+        print(f"Add your CSV files to the '{COMMANDS_DIR}/' folder and run again.")
+        return
+
+    print(f"Found {len(csv_files)} CSV file(s) to process.")
+
+    for csv_file in csv_files:
+        process_csv(csv_file)
+
+    print(f"\n{'='*60}")
+    print("Processing complete. Check the 'outputs/' folder for results.")
+    print(f"{'='*60}")
 
 if __name__ == "__main__":
     main()
