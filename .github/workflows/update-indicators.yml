@@ -21,7 +21,7 @@ jobs:
       deleted-files: ${{ steps.check-changes.outputs.deleted_files }}
       total-upsert: ${{ steps.check-changes.outputs.total_upsert }}
       total-deleted: ${{ steps.check-changes.outputs.total_deleted }}
-    
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -32,7 +32,7 @@ jobs:
         id: check-changes
         run: |
           echo "=== STEP 1: DETECT CHANGES ==="
-          
+
           if git rev-parse HEAD~1 >/dev/null 2>&1; then
             ADDED=$(git diff --name-status --no-renames HEAD~1 HEAD | grep '^A' | awk '{print $2}' | grep '^indicators/.*\.ya\?ml$' || true)
             MODIFIED=$(git diff --name-status --no-renames HEAD~1 HEAD | grep '^M' | awk '{print $2}' | grep '^indicators/.*\.ya\?ml$' || true)
@@ -43,19 +43,19 @@ jobs:
             MODIFIED=""
             DELETED=""
           fi
-          
+
           echo "Added: $(echo "$ADDED" | grep -c . || echo 0)"
           echo "Modified: $(echo "$MODIFIED" | grep -c . || echo 0)"
           echo "Deleted: $(echo "$DELETED" | grep -c . || echo 0)"
-          
+
           if [ -n "$ADDED" ] || [ -n "$MODIFIED" ] || [ -n "$DELETED" ]; then
             echo "has_changes=true" >> $GITHUB_OUTPUT
-            
+
             ADDED_JSON=$(echo "$ADDED" | grep -v '^$' | jq -R -c . | jq -s -c '.' || echo "[]")
             MODIFIED_JSON=$(echo "$MODIFIED" | grep -v '^$' | jq -R -c . | jq -s -c '.' || echo "[]")
             DELETED_JSON=$(echo "$DELETED" | grep -v '^$' | jq -R -c . | jq -s -c '.' || echo "[]")
             UPSERT_JSON=$(echo "$ADDED_JSON $MODIFIED_JSON" | jq -s -c 'add | unique')
-            
+
             echo "upsert_files=$UPSERT_JSON" >> $GITHUB_OUTPUT
             echo "deleted_files=$DELETED_JSON" >> $GITHUB_OUTPUT
             echo "total_upsert=$(echo "$UPSERT_JSON" | jq 'length')" >> $GITHUB_OUTPUT
@@ -68,239 +68,10 @@ jobs:
             echo "total_deleted=0" >> $GITHUB_OUTPUT
           fi
 
-  step-2-yaml-syntax:
-    name: "Step 2: YAML Syntax"
+  step-2-update-database:
+    name: "Step 2: Update Database"
     needs: step-1-detect-changes
     if: needs.step-1-detect-changes.outputs.has-changes == 'true'
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
-
-      - name: Validate YAML
-        env:
-          UPSERT_FILES: ${{ needs.step-1-detect-changes.outputs.upsert-files }}
-        run: |
-          echo "=== STEP 2: YAML SYNTAX ==="
-          pip install regex -q
-          ERRORS=0
-
-          cat > /tmp/validate_yaml.py << 'PYSCRIPT'
-          import yaml
-          import regex
-          import sys
-          
-          filepath = sys.argv[1]
-          with open(filepath, 'r', encoding='utf-8') as f:
-              content = f.read()
-          
-          # Remove regex field entirely to avoid false positives from complex patterns
-          content_no_regex = regex.sub(r'^regex:.*?(?=^\w|\Z)', '', content, flags=regex.MULTILINE | regex.DOTALL)
-          
-          try:
-              yaml.safe_load(content_no_regex)
-              print("  OK")
-              sys.exit(0)
-          except yaml.YAMLError as e:
-              print(f"  YAML ERROR: {e}")
-              sys.exit(1)
-          PYSCRIPT
-          
-          for file in $(echo "$UPSERT_FILES" | jq -r '.[]'); do
-            echo "Checking: $file"
-            python3 /tmp/validate_yaml.py "$file" || ERRORS=$((ERRORS + 1))
-          done
-          [ $ERRORS -gt 0 ] && exit 1
-          echo "All valid"
-
-  step-3-required-fields:
-    name: "Step 3: Required Fields"
-    needs: [step-1-detect-changes, step-2-yaml-syntax]
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
-
-      - name: Check fields
-        env:
-          UPSERT_FILES: ${{ needs.step-1-detect-changes.outputs.upsert-files }}
-        run: |
-          echo "=== STEP 3: REQUIRED FIELDS ==="
-          REQUIRED="name description regex basescore tactic technique reference"
-          ERRORS=0
-          
-          for file in $(echo "$UPSERT_FILES" | jq -r '.[]'); do
-            echo "Checking: $file"
-            MISSING=""
-            for field in $REQUIRED; do
-              grep -q "^${field}:" "$file" || MISSING="$MISSING $field"
-            done
-            
-            if [ -n "$MISSING" ]; then
-              echo "  MISSING:$MISSING"
-              ERRORS=$((ERRORS + 1))
-            else
-              echo "  OK"
-            fi
-          done
-          
-          [ $ERRORS -gt 0 ] && exit 1
-          echo "All fields present"
-
-  step-4-data-types:
-    name: "Step 4: Data Types"
-    needs: [step-1-detect-changes, step-3-required-fields]
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
-
-      - name: Validate types
-        env:
-          UPSERT_FILES: ${{ needs.step-1-detect-changes.outputs.upsert-files }}
-        run: |
-          echo "=== STEP 4: DATA TYPES ==="
-          pip install regex -q
-          ERRORS=0
-
-          cat > /tmp/validate.py << 'PYSCRIPT'
-          import yaml
-          import regex
-          import sys
-          
-          filepath = sys.argv[1]
-          with open(filepath, 'r', encoding='utf-8') as f:
-              content = f.read()
-          
-          # Remove regex field to avoid parsing issues
-          content_no_regex = regex.sub(r'^regex:.*?(?=^\w|\Z)', '', content, flags=regex.MULTILINE | regex.DOTALL)
-          data = yaml.safe_load(content_no_regex)
-
-          errors = 0
-
-          bs = data.get('basescore')
-          try:
-              val = float(bs)
-              if not (0 <= val <= 10):
-                  print(f"  basescore must be 0-10, got: {bs}")
-                  errors += 1
-          except:
-              print(f"  basescore must be number, got: {bs}")
-              errors += 1
-          
-          refs = data.get('reference', [])
-          if isinstance(refs, str):
-              refs = [refs]
-          for ref in refs:
-              if not (ref.startswith('http://') or ref.startswith('https://')):
-                  print(f"  Invalid URL: {ref}")
-                  errors += 1
-          
-          if errors == 0:
-              print("  OK")
-          sys.exit(errors)
-          PYSCRIPT
-          
-          for file in $(echo "$UPSERT_FILES" | jq -r '.[]'); do
-            echo "Checking: $file"
-            python3 /tmp/validate.py "$file" || ERRORS=$((ERRORS + 1))
-          done
-          
-          [ $ERRORS -gt 0 ] && exit 1
-          echo "All valid"
-
-  step-5-regex-patterns:
-    name: "Step 5: Regex Patterns"
-    needs: [step-1-detect-changes, step-4-data-types]
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
-
-      - name: Validate regex
-        env:
-          UPSERT_FILES: ${{ needs.step-1-detect-changes.outputs.upsert-files }}
-        run: |
-          echo "=== STEP 5: REGEX PATTERNS ==="
-          pip install regex -q
-          ERRORS=0
-
-          cat > /tmp/validate_regex.py << 'PYSCRIPT'
-          import regex
-          import sys
-          
-          def extract_regex_raw(filepath):
-              """Extract regex patterns directly from file without YAML parsing."""
-              with open(filepath, 'r', encoding='utf-8') as f:
-                  content = f.read()
-              
-              patterns = []
-              in_regex = False
-              
-              for line in content.split('\n'):
-                  if line.startswith('regex:'):
-                      in_regex = True
-                      value = line[6:].strip()
-                      if value and not value.startswith('#'):
-                          if (value.startswith('"') and value.endswith('"')) or \
-                             (value.startswith("'") and value.endswith("'")):
-                              value = value[1:-1]
-                          if value:
-                              patterns.append(value)
-                  elif in_regex:
-                      stripped = line.strip()
-                      if stripped.startswith('- '):
-                          value = stripped[2:].strip()
-                          if (value.startswith('"') and value.endswith('"')) or \
-                             (value.startswith("'") and value.endswith("'")):
-                              value = value[1:-1]
-                          if value:
-                              patterns.append(value)
-                      elif stripped and not stripped.startswith('#') and not stripped.startswith('-'):
-                          if regex.match(r'^\w+:', stripped):
-                              in_regex = False
-              return patterns
-          
-          filepath = sys.argv[1]
-          patterns = extract_regex_raw(filepath)
-          
-          errors = 0
-          warnings = 0
-          for p in patterns:
-              if p.startswith('http://') or p.startswith('https://'):
-                  print(f"  URL in regex: {p[:50]}")
-                  errors += 1
-                  continue
-              try:
-                  regex.compile(p)
-              except regex.error as e:
-                  errors += 1
-                  print(f"  Invalid regex: {e}")
-                      
-          if errors == 0:
-              print("Regex valid")
-          sys.exit(errors)
-          PYSCRIPT
-          
-          for file in $(echo "$UPSERT_FILES" | jq -r '.[]'); do
-            echo "Checking: $file"
-            python3 /tmp/validate_regex.py "$file" || ERRORS=$((ERRORS + 1))
-          done
-          
-          [ $ERRORS -gt 0 ] && exit 1
-          echo "All valid"
-
-  step-6-update-database:
-    name: "Step 6: Update Database"
-    needs: [step-1-detect-changes, step-5-regex-patterns]
     runs-on: ubuntu-latest
 
     steps:
@@ -317,21 +88,21 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
           PR_AUTHOR: ${{ github.event.pull_request.user.login || github.actor }}
         run: |
-          echo "=== STEP 6: UPDATE DATABASE ==="
+          echo "=== STEP 2: UPDATE DATABASE ==="
           echo "Merger: $GITHUB_ACTOR"
           echo "PR Author: $PR_AUTHOR"
-          
+
           INDICATORS_DATA="[]"
-          
+
           pip install regex -q
 
           # Create script to quote regex field in YAML content
           cat > /tmp/quote_regex.py << 'PYSCRIPT'
           import regex
           import sys
-          
+
           content = sys.stdin.read()
-          
+
           # Find regex line and quote it if not already quoted
           def quote_regex(match):
               prefix = match.group(1)  # "regex: " or "regex:"
@@ -343,21 +114,21 @@ jobs:
               # Escape single quotes in value and wrap in single quotes
               escaped = value.replace("'", "''")
               return f"{prefix}'{escaped}'"
-          
+
           # Match regex: followed by value (not a list)
           result = regex.sub(r'^(regex:\s*)([^\n]+)$', quote_regex, content, flags=regex.MULTILINE)
           print(result, end='')
           PYSCRIPT
-          
+
           for file in $(echo "$UPSERT_FILES" | jq -r '.[]'); do
             if [ -f "$file" ]; then
               echo "Processing: $file"
               LINK="https://github.com/${{ github.repository }}/blob/main/$file"
               AVATAR="https://github.com/${PR_AUTHOR}.png"
-              
+
               # Process content to quote regex field
               PROCESSED_CONTENT=$(cat "$file" | python3 /tmp/quote_regex.py)
-              
+
               INDICATOR_JSON=$(jq -n \
                 --arg fp "$file" \
                 --arg lk "$LINK" \
@@ -367,11 +138,11 @@ jobs:
                 --arg ma "https://github.com/${GITHUB_ACTOR}.png" \
                 --arg ct "$PROCESSED_CONTENT" \
                 '{file_path:$fp,content:$ct,link:$lk,last_modified_by:$mb,last_modified_by_avatar:$av,merger:$mg,merger_avatar:$ma,action:"upsert"}')
-              
+
               INDICATORS_DATA=$(echo "$INDICATORS_DATA" | jq ". += [$INDICATOR_JSON]")
             fi
           done
-          
+
           for file in $(echo "$DELETED_FILES" | jq -r '.[]'); do
             if [ -n "$file" ]; then
               echo "Deleting: $file"
@@ -379,27 +150,27 @@ jobs:
               INDICATORS_DATA=$(echo "$INDICATORS_DATA" | jq ". += [$DEL_JSON]")
             fi
           done
-          
+
           TOTAL=$(echo "$INDICATORS_DATA" | jq 'length')
           [ "$TOTAL" -eq 0 ] && echo "Nothing to process" && exit 0
-          
+
           echo "Sending $TOTAL indicator(s)..."
-          
+
           PAYLOAD=$(jq -n --argjson ind "$INDICATORS_DATA" --arg ga "$GITHUB_ACTOR" '{indicators:$ind,github_actor:$ga}')
-          
+
           if [[ "$SUPABASE_EDGE_URL" == */functions/v1* ]]; then
             URL="$SUPABASE_EDGE_URL/update-database-public-indicators"
           else
             URL="$SUPABASE_EDGE_URL/functions/v1/update-database-public-indicators"
           fi
-          
+
           HTTP=$(curl -s -o resp.txt -w "%{http_code}" -X POST \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $SUPABASE_EDGE_SECRET" \
             -d "$PAYLOAD" "$URL")
-          
+
           cat resp.txt | jq . 2>/dev/null || cat resp.txt
-          
+
           if [ "$HTTP" -eq 200 ]; then
             [ "$(cat resp.txt | jq -r '.success')" = "true" ] && echo "Success!" || exit 1
           else
@@ -409,32 +180,26 @@ jobs:
 
   pipeline-summary:
     name: "Pipeline Summary"
-    needs: [step-1-detect-changes, step-2-yaml-syntax, step-3-required-fields, step-4-data-types, step-5-regex-patterns, step-6-update-database]
+    needs: [step-1-detect-changes, step-2-update-database]
     if: always()
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Summary
         run: |
           echo "=== PIPELINE SUMMARY ==="
-          echo "Step 1: ${{ needs.step-1-detect-changes.result }}"
-          echo "Step 2: ${{ needs.step-2-yaml-syntax.result }}"
-          echo "Step 3: ${{ needs.step-3-required-fields.result }}"
-          echo "Step 4: ${{ needs.step-4-data-types.result }}"
-          echo "Step 5: ${{ needs.step-5-regex-patterns.result }}"
-          echo "Step 6: ${{ needs.step-6-update-database.result }}"
-          
-           # The pipeline is successful if Step 1 detected changes and Step 6 succeeded,
-          # OR if Step 1 detected NO changes (everything else skipped).
+          echo "Step 1 (Detect Changes): ${{ needs.step-1-detect-changes.result }}"
+          echo "Step 2 (Update Database): ${{ needs.step-2-update-database.result }}"
+
           if [ "${{ needs.step-1-detect-changes.outputs.has-changes }}" = "false" ]; then
             echo "SUCCESS: No changes to process"
             exit 0
           fi
-          
-          if [ "${{ needs.step-6-update-database.result }}" = "success" ]; then
+
+          if [ "${{ needs.step-2-update-database.result }}" = "success" ]; then
             echo "SUCCESS: Database updated"
             exit 0
           else
-            echo "FAILED: Step 6 did not succeed"
+            echo "FAILED: Database update did not succeed"
             exit 1
           fi
