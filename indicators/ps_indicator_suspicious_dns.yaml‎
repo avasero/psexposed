@@ -1,0 +1,11 @@
+name: Suspicious DNS activity
+description: Detects PowerShell-based DNS TXT retrieval patterns commonly used for DNS-based command retrieval/staging, including Resolve-DnsName/Resolve-Dns with TXT lookups and string reconstruction via .Strings or -join.
+regex: (Resolve-dns\s+.*-Type|nslookup\s+-type=txt).+(\.Strings|-join\s)
+basescore: 10
+tactic: [TA0011]
+technique: [T1071.004]
+reference:
+  - https://attack.mitre.org/techniques/T1071/004/
+  - https://learn.microsoft.com/en-us/powershell/module/dnsclient/resolve-dnsname
+  - https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/nslookup
+  - https://www.youtube.com/watch?v=t4rpsFt6n08
