@@ -7,4 +7,3 @@ technique: [T1055, T1003.001]
 reference:
   - https://attack.mitre.org/techniques/T1055/
   - https://attack.mitre.org/techniques/T1003/001/
-  - https://medium.com/@0xHossam/powershell-exploits-modern-apts-and-their-malicious-scripting-tactics-7f98b0e8090c
