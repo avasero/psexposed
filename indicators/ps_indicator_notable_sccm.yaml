@@ -1,0 +1,11 @@
+name: Notable SCCM reference
+description: Detects common Microsoft Configuration Manager (SCCM/MECM) WMI namespaces, classes, services, and registry paths often seen in administrative tooling and software-deployment-driven execution/lateral movement.
+regex: (?:\b(?:mSSMS|CmRcService|connectionPoint|netbootserver|intellimirrorSCP|mSSMSManagementPoint|SMS_R_[A-Za-z0-9_]+)\b|root[\\/]+SMS[\\/]+site_[A-Za-z0-9_]+|HK(?:EY_LOCAL_MACHINE|LM)[\\/]+SOFTWARE[\\/]+Microsoft[\\/]+SMS)
+basescore: 8.2
+tactic: [TA0002,TA0008]
+technique: [T1072]
+reference:
+  - https://specterops.io/blog/2026/01/13/introducing-configmanbearpig-a-bloodhound-opengraph-collector-for-sccm/
+  - https://attack.mitre.org/techniques/T1072/
+  - https://learn.microsoft.com/en-us/intune/configmgr/core/clients/manage/client-health-checks
+  - https://learn.microsoft.com/en-us/troubleshoot/mem/configmgr/content-management/advanced-troubleshooting-tips
